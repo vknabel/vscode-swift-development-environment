@@ -8,8 +8,8 @@
     "url": "https://github.com/jinmingjian"
   },
   "license": "Apache-2.0",
-  "version": "2.0.20170209",
-  "publisher": "jinmingjian",
+  "version": "2.1.0",
+  "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
     "color": "#FC823F",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jinmingjian/sde"
+    "url": "https://github.com/vknabel/sde"
   },
   "engines": {
     "vscode": "^1.16.0"
