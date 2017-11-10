@@ -1,6 +1,10 @@
 Change Log
 ===
 
+2.1.1
+---
+* Did not work with latest vscode #2 and #3
+
 2.1.0
 ---
 * Initial Swift 4 support jinmingjian/sde#38.
