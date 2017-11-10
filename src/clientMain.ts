@@ -7,12 +7,13 @@ import * as os from 'os'
 import {
 	workspace, window, commands, languages, extensions,
 	Disposable, ExtensionContext, Uri, DiagnosticCollection,
-	StatusBarItem, StatusBarAlignment, OutputChannel
+	StatusBarItem, StatusBarAlignment, OutputChannel, debug
 } from 'vscode';
 import {
 	LanguageClient, LanguageClientOptions,
 	SettingMonitor, ServerOptions, TransportKind
 } from 'vscode-languageclient';
+import { SwiftConfigurationProvider } from './SwiftConfigurationProvider';
 
 const LENGTH_PKG_FILE_NAME: number = "Package.swift".length
 const PUBLISHER_NAME = "jinmingjian.sde"
@@ -27,6 +28,9 @@ export let diagnosticCollection: DiagnosticCollection
 let spmChannel: OutputChannel = null
 
 export function activate(context: ExtensionContext) {
+	//debug
+	context.subscriptions.push(debug.registerDebugConfigurationProvider('swift', new SwiftConfigurationProvider()));
+
 	initConfig()
 
 	// The server is implemented in node
@@ -83,32 +87,16 @@ export function activate(context: ExtensionContext) {
 	//commands
 	context.subscriptions.push(
 		commands.registerCommand('sde.commands.buildPackage', buildSPMPackage)
-	)
+	);
 	// build on save
 	workspace.onDidSaveTextDocument(
 		document => buildSPMPackage(),//FIXME filter to swift files
-		null, context.subscriptions)
+		null,
+		context.subscriptions
+	);
 
-	//debug
-	context.subscriptions.push(commands.registerCommand('sde.commands.debug.provideInitialConfigurations', () => {
-		return [
-			'// Use IntelliSense to learn about possible Mock debug attributes.',
-			'// Hover to view descriptions of existing attributes.',
-			JSON.stringify(initialConfigurations, null, '\t')
-		].join('\n');
-	}));
-}
-
-const initialConfigurations = {
-	version: '0.2.0',
-	configurations: [
-		{
-			type: 'swift-debug',
-			request: 'launch',
-			name: 'Swift Program Debug',
-			program: '${workspaceRoot}/.build/debug/path-to-program-debugged',
-		}
-	]
+	// build on startup
+	buildSPMPackage();
 }
 
 function initConfig() {

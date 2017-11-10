@@ -347,7 +347,7 @@ connection.onHover(({textDocument, position}): Promise<Hover> => {
 		.cursorInfo(srcText, srcPath, offset)
 		.then(function (cursorInfo) {
 			return extractHoverHelp(cursorInfo)
-				.then(mks => { return { contents: mks } })
+				.then(mks => { return { contents: mks || [] } })
 		}, function (err) {
 			//FIXME
 			return err;
