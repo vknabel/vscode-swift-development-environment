@@ -8,7 +8,7 @@
     "url": "https://github.com/jinmingjian"
   },
   "license": "Apache-2.0",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -20,7 +20,7 @@
     "url": "https://github.com/vknabel/vscode-swift-development-environment"
   },
   "engines": {
-    "vscode": "^1.16.0"
+    "vscode": "^1.17.0"
   },
   "categories": [
     "Languages"
@@ -34,8 +34,7 @@
   "preview": true,
   "activationEvents": [
     "onLanguage:swift",
-    "onCommand:sde.commands.buildPackage",
-    "onCommand:sde.commands.debug.provideInitialConfigurations"
+    "onCommand:sde.commands.buildPackage"
   ],
   "main": "./out/src/clientMain",
   "contributes": {
@@ -86,6 +85,11 @@
           "default": false,
           "description": "Enable tracing output for SDE LS server"
         },
+        "sde.buildOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Indicates wether SDE shall build the project on save."
+        },
         "swift.diagnosis.max_num_problems": {
           "type": "number",
           "default": 100,
@@ -117,8 +121,7 @@
               }
             }
           }
-        },
-        "initialConfigurations": "sde.commands.debug.provideInitialConfigurations"
+        }
       }
     ]
   },
@@ -133,13 +136,13 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
-    "typescript": "^2.0.0",
-    "vscode": "^1.0.0",
+    "@types/bunyan": "latest",
+    "@types/node": "latest",
+    "js-yaml": "^3.7.0",
     "mocha": "^2.3.3",
     "pegjs": "^0.10.0",
-    "js-yaml": "^3.7.0",
-    "@types/node": "latest",
-    "@types/bunyan": "latest"
+    "typescript": "^2.0.0",
+    "vscode": "^1.0.0"
   },
   "dependencies": {
     "bunyan": "^1.8.5",
