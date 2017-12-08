@@ -147,7 +147,7 @@
   "dependencies": {
     "bunyan": "^1.8.5",
     "fs-promise": "^1.0.0",
-    "vscode-debugadapter": "^1.15.0",
+    "vscode-debugadapter": "^1.25.0",
     "vscode-debugprotocol": "^1.15.0",
     "vscode-languageclient": "^3.0.2-beta.5",
     "vscode-languageserver": "^3.0.2-beta.5"

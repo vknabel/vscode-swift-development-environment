@@ -53,9 +53,9 @@ class SDEDebugSessionAdapter extends DebugSession {
 
 	//override
 	protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
-		this.sendEvent(new InitializedEvent());
-
 		this.initializeBackendDebugger();
+
+		this.sendEvent(new InitializedEvent());
 		response.body.supportsConfigurationDoneRequest = true;
 		// response.body.supportsEvaluateForHovers = true;
 		// response.body.supportsStepBack = true;
@@ -64,7 +64,7 @@ class SDEDebugSessionAdapter extends DebugSession {
 		this.trace("initializeRequest done.")
 	}
 
-	debugger: LLDBMISession = null;
+	debugger: LLDBMISession | null = null;
 	private initializeBackendDebugger() {
 		this.debugger = lldbmi.startDebugSession(lldbmi.DebuggerType.LLDB);
 
@@ -177,7 +177,7 @@ class SDEDebugSessionAdapter extends DebugSession {
 		for (const bbp of bbps) {
 			if (bbp.locations) {
 				rt.push(<FrontendBreakpoint>new Breakpoint(true, bbp.locations[0].line))
-			}//FIXME handle pending 
+			}//FIXME handle pending
 		}
 		return rt
 	}
@@ -230,7 +230,7 @@ class SDEDebugSessionAdapter extends DebugSession {
 
 	//override
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
-		//FIXME all vars goto locals? 
+		//FIXME all vars goto locals?
 		response.body = {
 			scopes: [
 				new Scope("Local", this.variableHandles.create(args.frameId), false),
