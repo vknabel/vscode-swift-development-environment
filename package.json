@@ -1,11 +1,11 @@
 {
   "name": "vscode-swift-development-environment",
-  "displayName": "Swift Development Environment",
-  "description": "Swift Development Environment based on VS Code",
+  "displayName": "Maintained Swift Development Environment",
+  "description": "New home of Swift Development Environment for VS Code ",
   "author": {
-    "name": "Jin Mingjian",
-    "email": "jin.phd@gmail.com",
-    "url": "https://github.com/jinmingjian"
+    "name": "Valentin Knabel",
+    "email": "dev@vknabel.com",
+    "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
   "version": "2.1.2",
@@ -29,7 +29,9 @@
     "swift",
     "sde",
     "linux",
-    "lldb"
+    "lldb",
+    "development",
+    "environment"
   ],
   "preview": true,
   "activationEvents": [
