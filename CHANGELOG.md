@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0
+* Autocompletion for external libraries like AppKit #8, UIKit still missing
+* Display short documentation on autocompletion
+* More reliable autocompletion, especially for global namespace
+
 ## 2.1.3
 * Improved new README
 * Deprecated debugger, use [LLDB Debugger](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) instead

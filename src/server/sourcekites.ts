@@ -144,7 +144,7 @@ function typedResponse<T>(request: string, requestType: RequestType,
                 case "codecomplete":
                 case "demangle":
                     const res = JSON.parse(jsonify(resp))
-                    return res["key.results"]
+                    return res["key.results"] || []
                 case "editor.formattext":
                     const keyLine = extraState.keyLine
                     const lineRange = extraState.lineRange
@@ -327,6 +327,6 @@ function cutOffResponse(s: string): string {
 
 function jsonify(s: string): string {
     return s
-        .replace(/(key.[a-z_.]+):/g, '"$1":')
-        .replace(/(source.[a-z_.]+),/g, '"$1",')
+        .replace(/(key\.[a-z_.]+):/g, '"$1":')
+        .replace(/(source\.[a-z_.]+),/g, '"$1",')
 }

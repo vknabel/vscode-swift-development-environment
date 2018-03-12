@@ -231,14 +231,15 @@ connection.onCompletion(({textDocument, position}): Thenable<CompletionItem[]> =
 	const offset = document.offsetAt(position) //FIXME
 	return sourcekitProtocol
 		.codeComplete(srcText, srcPath, offset)
-		.then(function (completions) {
+		.then(function (completions: Object[] | null) {
 			let items = [];
-			for (let c of <Array<Object>>completions) {
+			for (let c of completions || []) {
 				let item = CompletionItem.create(c["key.description"])
 				item.kind = toCompletionItemKind(c["key.kind"])
 				item.detail = `${c["key.modulename"]}.${c["key.name"]}`
 				item.insertText = createSuggest(c["key.sourcetext"])
 				item.insertTextFormat = InsertTextFormat.Snippet
+				item.documentation = c["key.doc.brief"]
 				items.push(item)
 			}
 			return items
@@ -510,7 +511,6 @@ export function getShellExecPath() {
  * TODO: to use build yaml?
  */
 let argsImportPaths: string[] = null
-
 export function loadArgsImportPaths(): string[] {
 	if (!argsImportPaths) {
 		argsImportPaths = []
@@ -518,6 +518,10 @@ export function loadArgsImportPaths(): string[] {
 		argsImportPaths.push(path.join(workspaceRoot, '.build', 'debug'))
 		//FIXME system paths can not be available automatically?
 		// rt += " -I"+"/usr/lib/swift/linux/x86_64"
+		argsImportPaths.push("-sdk")
+		argsImportPaths.push("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk")
+		argsImportPaths.push("-I")
+		argsImportPaths.push("/System/Library/Frameworks/")
 		argsImportPaths.push("-I")
 		argsImportPaths.push("/usr/lib/swift/pm/")
 		return argsImportPaths
