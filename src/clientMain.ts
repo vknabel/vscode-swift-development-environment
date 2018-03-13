@@ -18,10 +18,10 @@ import { SwiftConfigurationProvider } from './SwiftConfigurationProvider';
 const LENGTH_PKG_FILE_NAME: number = "Package.swift".length
 const PUBLISHER_NAME = "jinmingjian.sde"
 
-let swiftBinPath = null
-let swiftPackageManifestPath = null
-let skProtocolProcess = null
-let skProtocolProcessAsShellCmd = null
+let swiftBinPath: string | null = null
+let swiftPackageManifestPath: string | null = null
+let skProtocolProcess: string | null = null
+let skProtocolProcessAsShellCmd: string | null = null
 export let isTracingOn: boolean = false
 export let isLSPServerTracingOn: boolean = false
 export let diagnosticCollection: DiagnosticCollection
@@ -57,7 +57,8 @@ export function activate(context: ExtensionContext) {
 		initializationOptions: {
 			'isLSPServerTracingOn': isLSPServerTracingOn,
 			'skProtocolProcess': skProtocolProcess,
-			'skProtocolProcessAsShellCmd': skProtocolProcessAsShellCmd
+			'skProtocolProcessAsShellCmd': skProtocolProcessAsShellCmd,
+			'skCompilerOptions': workspace.getConfiguration().get('sde.sourcekit.compilerOptions')
 		},
 	}
 
@@ -90,7 +91,11 @@ export function activate(context: ExtensionContext) {
 	);
 	// build on save
 	workspace.onDidSaveTextDocument(
-		document => buildSPMPackage(),//FIXME filter to swift files
+		document => {
+			if (document.languageId === 'swift') {
+				buildSPMPackage()
+			}
+		},
 		null,
 		context.subscriptions
 	);
@@ -104,14 +109,9 @@ function initConfig() {
 
 	workspace.getConfiguration().update('editor.quickSuggestions', false, false)
 	workspace.getConfiguration().update('sde.buildOnSave', true, false)
-	// console.log('sde.enableTracing: '+workspace.getConfiguration().get('sde.enableTracing.client'))
 
 	isTracingOn = <boolean>workspace.getConfiguration().get('sde.enableTracing.client')
 	isLSPServerTracingOn = <boolean>workspace.getConfiguration().get('sde.enableTracing.LSPServer')
-	console.log('isTracingOn: ' + isTracingOn)
-	if (isTracingOn) {
-		//TODO
-	}
 	//FIXME rootPath may be undefined for adhoc file editing mode???
 	swiftPackageManifestPath = path.join(workspace.rootPath, "Package.swift");
 
@@ -126,7 +126,7 @@ function initBuildStatusItem() {
 }
 
 const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-let building = null
+let building: NodeJS.Timer | null = null
 
 function makeBuildStatusStarted() {
 	buildStatusItem.color = originalBuildStatusItemColor
@@ -165,9 +165,9 @@ function isSPMProject(): boolean {
 }
 
 
-export function trace(msg) {
+export function trace(...msg: any[]) {
 	if (isTracingOn) {
-		console.log(msg)
+		console.log(...msg)
 	}
 }
 

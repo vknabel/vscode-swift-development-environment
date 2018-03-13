@@ -94,6 +94,7 @@ connection.onInitialize((params: InitializeParams, cancellationToken): Initializ
 	isTracingOn = params.initializationOptions.isLSPServerTracingOn
 	skProtocolPath = params.initializationOptions.skProtocolProcess
 	skProtocolProcessAsShellCmd = params.initializationOptions.skProtocolProcessAsShellCmd
+	skCompilerOptions = params.initializationOptions.skCompilerOptions
 	trace("-->onInitialize ", `isTracingOn=[${isTracingOn}],
 	skProtocolProcess=[${skProtocolPath}],skProtocolProcessAsShellCmd=[${skProtocolProcessAsShellCmd}]`)
 	workspaceRoot = params.rootPath
@@ -134,6 +135,7 @@ export let maxBytesAllowedForCodeCompletionResponse: number = 0;
 //internal
 export let skProtocolPath = null
 export let skProtocolProcessAsShellCmd = false
+export let skCompilerOptions: string[] = []
 let maxNumProblems = null
 let shellPath = null
 // The settings have changed. Is send on server activation
@@ -519,11 +521,18 @@ export function loadArgsImportPaths(): string[] {
 		//FIXME system paths can not be available automatically?
 		// rt += " -I"+"/usr/lib/swift/linux/x86_64"
 		argsImportPaths.push("-sdk")
-		argsImportPaths.push("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk")
+		argsImportPaths.push("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")
+		argsImportPaths.push("-sdk")
+		argsImportPaths.push("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk")
+		argsImportPaths.push("-sdk")
+		argsImportPaths.push("/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk")
+		argsImportPaths.push("-sdk")
+		argsImportPaths.push("/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS.sdk")
 		argsImportPaths.push("-I")
 		argsImportPaths.push("/System/Library/Frameworks/")
 		argsImportPaths.push("-I")
 		argsImportPaths.push("/usr/lib/swift/pm/")
+		argsImportPaths.push(...skCompilerOptions)
 		return argsImportPaths
 	} else {
 		return argsImportPaths

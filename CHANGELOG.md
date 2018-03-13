@@ -1,9 +1,15 @@
 # Changelog
 
 ## 2.2.0
-* Autocompletion for external libraries like AppKit #8, UIKit still missing
+* Autocompletion for external libraries like AppKit and UIKit after restart #8
 * Display short documentation on autocompletion
 * More reliable autocompletion, especially for global namespace
+* New `"sde.sourcekit.compilerOptions"` setting
+
+### How do I get autocompletion for UIKit?
+
+Just add `"sde.sourcekit.compilerOptions": ["-target", "arm64-apple-ios11.0"]` to your workspace settings in Visual Studio Code and restart it.
+
 
 ## 2.1.3
 * Improved new README

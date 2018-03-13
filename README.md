@@ -15,13 +15,13 @@
 	```bash
 	$ git clone https://github.com/vknabel/sourcekite
 	$ cd sourcekite
-	
+
 	# For Linux
 	$ swift build
-	
+
 	# For macOS (when using swiftenv or multiple Toolchains)
 	$ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -Xlinker -rpath -Xlinker /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -c release
-	
+
 	# For macOS (using Xcode's Toolchain)
 	$ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -Xlinker -rpath -Xlinker /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -c release
 	```
@@ -35,7 +35,7 @@ SDE has a built-in Swift debugger which has been deprecated. Instead use [LLDB D
 
 An example config can be seen below. `program` should contain the path to your built executable, the `preLaunchTask` is optional, but will run `swift build` before each debug session to keep your binaries up to date.
 
-> **Note:** Currently I don't know of any reliable solution to debug your Swift tests. 
+> **Note:** Currently I don't know of any reliable solution to debug your Swift tests.
 > If you do, please file an issue or write me an [email](mailto:dev@vknabel.com).
 
 ```js
@@ -82,6 +82,10 @@ Any feedback helps.
 If you mean contributions to the **sources**, this is truely another topic. The experience of **_using_** an editor is much different than that of **_developing_** one. It might be a bit more painful than you think. But if you would like to, welcome!
 
 There aren't too much documents about the development of this project. If you have any questions or interests, don't hesitate to file an [issue](https://github.com/vknabel/swift-development-environment/issues) or write me an [email](mailto:dev@vknabel.com). I will help you and then drop more readings as time goes by. This is **_the way of "open source"_**.
+
+### How do I get autocompletion for UIKit?
+
+Just add `"sde.sourcekit.compilerOptions": ["-target", "arm64-apple-ios11.0"]` to your workspace settings in Visual Studio Code and restart it.
 
 ### Other questions?
 

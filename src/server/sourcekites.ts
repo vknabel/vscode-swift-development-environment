@@ -172,7 +172,7 @@ function request(
     offset: number): Promise<any> {
 
     const sourcePaths = server.getAllSourcePaths(srcPath)
-    const compilerargs = JSON.stringify((sourcePaths ? sourcePaths : [srcPath])
+    const compilerargs = JSON.stringify(sourcePaths || [srcPath]
         .concat(server.loadArgsImportPaths())
     )
     srcText = JSON.stringify(srcText)

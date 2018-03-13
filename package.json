@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -76,6 +76,14 @@
           "type": "string",
           "default": "/bin/sh",
           "description": "The fully path to the shell binary."
+        },
+        "sde.sourcekit.compilerOptions": {
+          "type": "array",
+          "description": "Optional compiler options like the target or search paths.",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
         },
         "sde.enableTracing.client": {
           "type": "boolean",
