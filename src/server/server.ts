@@ -14,8 +14,8 @@ import {
 } from 'vscode-languageserver'
 import * as fs from 'fs'
 import * as sourcekitProtocol from './sourcekites'
-
-export const spawn = require('child_process').spawn
+import * as childProcess from 'child_process';
+export const spawn = childProcess.spawn;
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -43,7 +43,7 @@ export function initializeModuleMeta() {
 			trace('***swift package describe stdout*** ', '' + data)
 		}
 		//TODO more here
-		const pkgDesc = JSON.parse(data)
+		const pkgDesc = JSON.parse(data as string)
 		for (const m of <Object[]>pkgDesc['modules'] || pkgDesc['targets']) {
 			const mn = m['name']
 			const mp = m['path']
@@ -393,7 +393,7 @@ async function extractHoverHelp(cursorInfo: Object): Promise<MarkedString[]> {
 		decode(
 			stripeOutTags(
 				extractText('Declaration',
-					full_as_xml ? full_as_xml : annotated_decl))) + "\n```\n"
+					full_as_xml || annotated_decl))) + "\n```\n"
 		+ (containerType ? `**Declared In**:  ${containerType}\n\n` : '')
 		+ (moduleName ? `**Module**:  ${moduleName}` : '')
 		: keyName

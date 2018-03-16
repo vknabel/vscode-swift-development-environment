@@ -7,13 +7,25 @@ import {
 } from 'vscode-languageserver'
 
 import * as stream from 'stream'
+import { ChildProcess } from "child_process";
 
-let skProtocolProcess = null
-let skeHandler = null
+let skProtocolProcess: ChildProcess | null = null
+let skeHandler: SourcekiteResponseHandler | null = null
 export function initializeSourcekite() {
     if (skProtocolProcess == null) {
         initializeSKProtocolProcess()
     }
+}
+
+function terminateSourcekite() {
+    if (skProtocolProcess != null) {
+        skProtocolProcess.kill();
+    }
+}
+
+function restartSourcekite() {
+    terminateSourcekite();
+    initializeSourcekite();
 }
 
 function createSkProtocolProcess() {
@@ -132,37 +144,31 @@ let reqCount = 0 //FIXME
 
 type RequestType = "codecomplete" | "cursorinfo" | "demangle" | "editor.open" | "editor.formattext"
 
-function typedResponse<T>(request: string, requestType: RequestType,
-    extraState: any = null): Promise<T> {
+function parseSkResponse(resp: string): any {
+    return JSON.parse(jsonify(resp))
+}
+
+function pluck<T, K extends keyof T>(prop: K): (ofTarget: T) => T[K] {
+    return target => target[prop];
+}
+
+function typedResponse(request: string, requestType: RequestType,
+    extraState: any = null, retries = 0): Promise<string> {
     server.trace('to write request: ', request)
     const rid = reqCount++
     skProtocolProcess.stdin.write(rid + "\n")
     skProtocolProcess.stdin.write(request)
     return skeHandler.getResponse(rid)
-        .then(resp => {
-            switch (requestType) {
-                case "codecomplete":
-                case "demangle":
-                    const res = JSON.parse(jsonify(resp))
-                    return res["key.results"] || []
-                case "editor.formattext":
-                    const keyLine = extraState.keyLine
-                    const lineRange = extraState.lineRange
-                    let offSetEnd = resp.lastIndexOf("\"");
-                    let offSetStart = resp.indexOf("\"", resp.lastIndexOf("key.sourcetext:")) + 1
-                    let lineText = resp.substring(offSetStart, offSetEnd)
-                    // server.trace(`---responseEditorFormatText lineText(${keyLine}): `, lineText)
-                    return {
-                        line: keyLine,
-                        textEdit: {
-                            range: lineRange,
-                            newText: JSON.parse(`"${lineText}"`) //NOTE convert back, silly...
-                        }
-                    }
-                default:
-                    return JSON.parse(jsonify(resp))
+        .catch(e => {
+            console.log("Request did fail", requestType, e)
+            if (retries > 5) {
+                console.log("Request failed too many times. Abort.")
+                throw "Request failed too many times. Abort.";
+            } else {
+                restartSourcekite();
+                return typedResponse(request, requestType, extraState, retries);
             }
-        }).catch(e => { debugLog("***typedResponse error: " + e) })
+        })
 }
 
 function request(
@@ -190,12 +196,14 @@ function request(
 
 //== codeComplete
 export function codeComplete(srcText: string, srcPath: string, offset: number): Promise<any> {
-    return request("codecomplete", srcText, srcPath, offset);
+    return request("codecomplete", srcText, srcPath, offset)
+        .then(parseSkResponse).then(pluck("key.results"));
 }
 
 //== cursorInfo
 export function cursorInfo(srcText: string, srcPath: string, offset: number): Promise<any> {
-    return request("cursorinfo", srcText, srcPath, offset);
+    return request("cursorinfo", srcText, srcPath, offset)
+        .then(parseSkResponse);
 }
 
 //== demangle
@@ -208,6 +216,7 @@ export function demangle(...demangledNames: string[]): Promise<any> {
 
 `
     return typedResponse(request, "demangle")
+        .then(parseSkResponse).then(pluck("key.results"))
 }
 
 
@@ -271,6 +280,7 @@ function editorOpen(
 
 `
     return typedResponse(request, "editor.open")
+        .then(parseSkResponse)
 }
 
 interface FormatTextState {
@@ -299,15 +309,34 @@ function requestEditorFormatText(
                 document.offsetAt({ line: keyLine, character: 0 }) - 1) :
             document.positionAt(
                 document.offsetAt({ line: document.lineCount, character: 0 }))
-    return typedResponse(request, "editor.formattext",
-        {
-            keyLine: keyLine,
-            lineRange: { start: firstStartPos, end: firstEndPos }//NOTE format req is 1-based
-        }
-    )
+    const extraState = {
+        keyLine: keyLine,
+        lineRange: { start: firstStartPos, end: firstEndPos }//NOTE format req is 1-based
+    }
+    return typedResponse(request, "editor.formattext")
+        .then((resp: string) => {
+            const keyLine = extraState.keyLine
+            const lineRange = extraState.lineRange
+            let offSetEnd = resp.lastIndexOf("\"");
+            let offSetStart = resp.indexOf("\"", resp.lastIndexOf("key.sourcetext:")) + 1
+            let lineText = resp.substring(offSetStart, offSetEnd)
+            return {
+                line: keyLine,
+                textEdit: {
+                    range: lineRange,
+                    newText: JSON.parse(`"${lineText}"`) //NOTE convert back, silly...
+                }
+            }
+        })
 }
 
 
+function log<T>(prefix: string): (value: T) => T {
+    return value => {
+        console.log(prefix, value)
+        return value
+    }
+}
 
 function debugLog(msg: string) {
     server.trace(msg)
