@@ -30,8 +30,7 @@
     "sde",
     "linux",
     "lldb",
-    "development",
-    "environment"
+    "development"
   ],
   "preview": true,
   "activationEvents": [
