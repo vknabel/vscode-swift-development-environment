@@ -54,7 +54,8 @@ type SkElement = Name
     | Para
     | CodeVoice
 
-export function parseDocumentation(xml: string): string[] {
+export function parseDocumentation(xml: string | null): string[] {
+    if (xml == null) return [];
     const root = convert.xml2js(xml, {
             captureSpacesBetweenElements: true
     }) as Root;
