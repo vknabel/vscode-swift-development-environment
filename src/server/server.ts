@@ -15,6 +15,7 @@ import {
 import * as fs from 'fs'
 import * as sourcekitProtocol from './sourcekites'
 import * as childProcess from 'child_process';
+import { parseDocumentation } from './sourcekit-xml';
 export const spawn = childProcess.spawn;
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
@@ -357,6 +358,10 @@ connection.onHover(({textDocument, position}): Promise<Hover> => {
 		});
 })
 
+/**
+ * sadasd
+ * @param cursorInfo s
+ */
 async function extractHoverHelp(cursorInfo: Object): Promise<MarkedString[]> {
 	//local helper
 	function extractText(
@@ -397,7 +402,7 @@ async function extractHoverHelp(cursorInfo: Object): Promise<MarkedString[]> {
 		+ (containerType ? `**Declared In**:  ${containerType}\n\n` : '')
 		+ (moduleName ? `**Module**:  ${moduleName}` : '')
 		: keyName
-	return [t, snippet];//FIXME clickable keyTypename
+	return [snippet, t, ...parseDocumentation(full_as_xml)];//FIXME clickable keyTypename
 }
 
 

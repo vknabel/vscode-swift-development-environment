@@ -148,6 +148,7 @@
   "devDependencies": {
     "@types/bunyan": "latest",
     "@types/node": "latest",
+    "@types/xml-js": "^1.0.0",
     "js-yaml": "^3.7.0",
     "mocha": "^2.3.3",
     "pegjs": "^0.10.0",
@@ -160,6 +161,7 @@
     "vscode-debugadapter": "^1.25.0",
     "vscode-debugprotocol": "^1.15.0",
     "vscode-languageclient": "^3.0.2-beta.5",
-    "vscode-languageserver": "^3.0.2-beta.5"
+    "vscode-languageserver": "^3.0.2-beta.5",
+    "xml-js": "^1.6.2"
   }
 }

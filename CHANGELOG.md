@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0
+* Fixes a bug thats lead the extension to stop working #10
+* Display documentation on Hover #11
+
 ## 2.2.0
 * Autocompletion for external libraries like AppKit and UIKit after restart #8
 * Display short documentation on autocompletion
