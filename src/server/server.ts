@@ -10,7 +10,7 @@ import {
 	DocumentFormattingParams, TextDocumentIdentifier, TextEdit,
 	Hover, MarkedString,
 	Definition,
-	Files, FileChangeType
+	Files, FileChangeType, Range
 } from 'vscode-languageserver'
 import * as fs from 'fs'
 import * as sourcekitProtocol from './sourcekites'
@@ -225,9 +225,34 @@ connection.onDidChangeWatchedFiles((watched) => {
 	})
 });
 
-
 // This handler provides the initial list of the completion items.
-connection.onCompletion(({textDocument, position}): Thenable<CompletionItem[]> => {
+connection.onCompletion(({ textDocument, position }): Thenable<CompletionItem[]> => {
+	function removeSubstringFix(sub: string, replacement = ''): TextEdit[] {
+		const prefixOffset = offset - Math.max(3, sub.length * 2 - 1);
+		const prefix = srcText.slice(prefixOffset, offset)
+		const lastOccurence = prefix.lastIndexOf(sub)
+		if (lastOccurence === -1) return [];
+		const duplicateKeywordRange = Range.create(
+			document.positionAt(prefixOffset + lastOccurence),
+			document.positionAt(prefixOffset + lastOccurence + sub.length)
+		)
+		return [TextEdit.replace(duplicateKeywordRange, replacement)]
+	}
+	function completionOfDuplicateFuncKeywordFix(kind: string): TextEdit[] {
+		return kind.includes('source.lang.swift.decl.function.')
+			&& removeSubstringFix('func ')
+			|| [];
+	}
+	function completionOfDuplicateDotFix(kind: string): TextEdit[] {
+		return kind.includes('source.lang.swift.decl.function.')
+			&& removeSubstringFix('..', '.')
+			|| [];
+	}
+	function combineFixes(kind: string, ...fixes: Array<(kind: string) => TextEdit[]>): TextEdit[] {
+		return fixes.map(fix => fix(kind))
+			.reduce((all, next) => [...all, ...next], [])
+	}
+
 	const document: TextDocument = documents.get(textDocument.uri)
 	const srcPath = document.uri.substring(7, document.uri.length)
 	const srcText: string = document.getText() //NOTE needs on-the-fly buffer
@@ -235,17 +260,21 @@ connection.onCompletion(({textDocument, position}): Thenable<CompletionItem[]> =
 	return sourcekitProtocol
 		.codeComplete(srcText, srcPath, offset)
 		.then(function (completions: Object[] | null) {
-			let items = [];
-			for (let c of completions || []) {
+			return (completions || []).map(c => {
 				let item = CompletionItem.create(c["key.description"])
 				item.kind = toCompletionItemKind(c["key.kind"])
 				item.detail = `${c["key.modulename"]}.${c["key.name"]}`
 				item.insertText = createSuggest(c["key.sourcetext"])
 				item.insertTextFormat = InsertTextFormat.Snippet
 				item.documentation = c["key.doc.brief"]
-				items.push(item)
-			}
-			return items
+				console.log('kind', c['key.kind'], c["key.description"])
+				item.additionalTextEdits = combineFixes(
+					c["key.kind"],
+					completionOfDuplicateFuncKeywordFix,
+					completionOfDuplicateDotFix
+				)
+				return item
+			})
 		}, function (err) {
 			//FIXME
 			return err
@@ -256,12 +285,14 @@ connection.onCompletion(({textDocument, position}): Thenable<CompletionItem[]> =
  * ref: https://github.com/facebook/nuclide/blob/master/pkg/nuclide-swift/lib/sourcekitten/Complete.js#L57
  */
 function createSuggest(sourcetext: string): string {
-	// trace("---createSuggest--- ",sourcetext)
 	let index = 1
 	let snp = sourcetext.replace(/<#T##(.+?)#>/g, (m, g) => {
 		return "${" + (index++) + ":" + g.split('##')[0] + "}"
 	})
-	return snp.replace('<#code#>', `\${${index++}}`)
+	const normalized = snp.replace('<#code#>', `\${${index++}}`)
+	return normalized.startsWith('.')
+		? normalized.slice(1)
+		: normalized
 };
 
 //TODO more meanful CompletionItemKinds...
