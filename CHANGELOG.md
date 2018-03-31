@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.3.0
+* Fixes autocompletion for methods and invocations leading to invalid syntax #9
 * Fixes a bug thats lead the extension to stop working #10
 * Display documentation on Hover #11
 
