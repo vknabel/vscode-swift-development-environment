@@ -17,7 +17,9 @@
 	$ cd sourcekite
 
 	# For Linux
-	$ swift build
+    # Ensure LD_LIBRARY_PATH contains /your/swift/usr/lib
+    # And have ln -s /usr/lib/sourcekitdInProc /your/swift/usr/lib/libsourcekitdInProc.so
+	$ swift build -Xlinker -l:sourcekitdInProc -c release
 
 	# For macOS (when using swiftenv or multiple Toolchains)
 	$ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -Xlinker -rpath -Xlinker /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -c release
