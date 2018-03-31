@@ -18,7 +18,7 @@
 
 	# For Linux
     # Ensure LD_LIBRARY_PATH contains /your/swift/usr/lib
-    # And have ln -s /usr/lib/sourcekitdInProc /your/swift/usr/lib/libsourcekitdInProc.so
+    # And have sudo ln -s /usr/lib/sourcekitdInProc /your/swift/usr/lib/libsourcekitdInProc.so
 	$ swift build -Xlinker -l:sourcekitdInProc -c release
 
 	# For macOS (when using swiftenv or multiple Toolchains)
