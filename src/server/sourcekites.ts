@@ -176,11 +176,38 @@ function request(
     srcText: string,
     srcPath: string,
     offset: number): Promise<any> {
+    function targetArgumentsForImport(lib: string, platform: string, target: string): string[] | null {
+        return loadedArgs.indexOf("-target") === -1 && srcText.includes(`import ${lib}`)
+            ? [
+                "-target",
+                target,
+                "-sdk",
+                `/Applications/Xcode.app/Contents/Developer/Platforms/${platform}.platform/Developer/SDKs/${platform}.sdk`
+            ]
+            : null
+    }
+    function defaultTargetArguments() {
+        if (loadedArgs.indexOf("-target") !== -1) {
+            return [];
+        }
+        return process.platform === 'linux'
+            ? ["-target", "x86_64-unknown-linux"]
+            : ["-target", "x86_64-apple-macosx10.10", "-sdk", `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk`]
+    }
 
     const sourcePaths = server.getAllSourcePaths(srcPath)
-    const compilerargs = JSON.stringify(sourcePaths || [srcPath]
-        .concat(server.loadArgsImportPaths())
-    )
+    const loadedArgs = server.loadArgsImportPaths()
+    /*const inferredOSArgs = process.platform === 'darwin'
+        ? ["-target", "x86_64-apple-macosx10.10"]*/
+    const inferredTargetArgs = targetArgumentsForImport('UIKit', 'iPhoneOS', 'arm64-apple-ios11.0')
+        || targetArgumentsForImport('AppKit', 'MacOSX', 'x86_64-apple-macosx10.10')
+        || defaultTargetArguments();
+    const compilerargs = JSON.stringify([
+        ...(sourcePaths || [srcPath]),
+        ...server.loadArgsImportPaths(),
+        ...inferredTargetArgs
+    ])
+    console.log(compilerargs)
     srcText = JSON.stringify(srcText)
     let request = `{
   key.request: source.request.${requestType},

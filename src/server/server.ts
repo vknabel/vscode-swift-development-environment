@@ -114,7 +114,7 @@ connection.onInitialize((params: InitializeParams, cancellationToken): Initializ
 			completionProvider: {
 				resolveProvider: false,
 				triggerCharacters: [
-					'.', ':', '(', //' ', '<', //TODO
+					'.', ':', '(', '#', //' ', '<', //TODO
 				]
 			},
 			documentFormattingProvider: true,
@@ -267,7 +267,6 @@ connection.onCompletion(({ textDocument, position }): Thenable<CompletionItem[]>
 				item.insertText = createSuggest(c["key.sourcetext"])
 				item.insertTextFormat = InsertTextFormat.Snippet
 				item.documentation = c["key.doc.brief"]
-				console.log('kind', c['key.kind'], c["key.description"])
 				item.additionalTextEdits = combineFixes(
 					c["key.kind"],
 					completionOfDuplicateFuncKeywordFix,

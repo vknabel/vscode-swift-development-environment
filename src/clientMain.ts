@@ -7,7 +7,7 @@ import * as os from 'os'
 import {
 	workspace, window, commands, languages, extensions,
 	Disposable, ExtensionContext, Uri, DiagnosticCollection,
-	StatusBarItem, StatusBarAlignment, OutputChannel, debug
+	StatusBarItem, StatusBarAlignment, OutputChannel, debug, env
 } from 'vscode';
 import {
 	LanguageClient, LanguageClientOptions,
@@ -26,6 +26,15 @@ export let isTracingOn: boolean = false
 export let isLSPServerTracingOn: boolean = false
 export let diagnosticCollection: DiagnosticCollection
 let spmChannel: OutputChannel = null
+
+function shouldBuildOnSave(): boolean {
+	const should = workspace.getConfiguration().get<boolean>('sde.buildOnSave');
+	if (should === undefined) {
+		return true;
+	} else {
+		return should;
+	}
+}
 
 export function activate(context: ExtensionContext) {
 	//debug
@@ -62,7 +71,6 @@ export function activate(context: ExtensionContext) {
 		},
 	}
 
-	// console.log(workspace.getConfiguration().get('editor.quickSuggestions'))
 	// Create the language client and start the client.
 	let disposable = new LanguageClient('Swift', serverOptions, clientOptions).start()
 
@@ -89,16 +97,20 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand('sde.commands.buildPackage', buildSPMPackage)
 	);
-	// build on save
-	workspace.onDidSaveTextDocument(
-		document => {
-			if (document.languageId === 'swift') {
-				buildSPMPackage()
-			}
-		},
-		null,
-		context.subscriptions
-	);
+
+
+	if (shouldBuildOnSave()) {
+		// build on save
+		workspace.onDidSaveTextDocument(
+			document => {
+				if (document.languageId === 'swift') {
+					buildSPMPackage()
+				}
+			},
+			null,
+			context.subscriptions
+		);
+	}
 
 	// build on startup
 	buildSPMPackage();
@@ -106,9 +118,6 @@ export function activate(context: ExtensionContext) {
 
 function initConfig() {
 	checkToolsAvailability()
-
-	workspace.getConfiguration().update('editor.quickSuggestions', false, false)
-	workspace.getConfiguration().update('sde.buildOnSave', true, false)
 
 	isTracingOn = <boolean>workspace.getConfiguration().get('sde.enableTracing.client')
 	isLSPServerTracingOn = <boolean>workspace.getConfiguration().get('sde.enableTracing.LSPServer')

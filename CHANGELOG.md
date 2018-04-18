@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1
+* Accidentially logged SourceKit's `key.kind` and `key.description`
+* Removed unused config `editor.quickSuggestions`
+* Will no longer write `sde.buildOnSave` or `editor.quickSuggestions` to workspace settings
+* `#` will now trigger completions
+* `-target` will now be detected for `UIKit`, `AppKit` on macOS and linux
+
 ## 2.3.0
 * Fixes autocompletion for methods and invocations leading to invalid syntax #9
 * Fixes a bug thats lead the extension to stop working #10
