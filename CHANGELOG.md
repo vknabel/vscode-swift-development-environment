@@ -6,6 +6,7 @@
 * Will no longer write `sde.buildOnSave` or `editor.quickSuggestions` to workspace settings
 * `#` will now trigger completions
 * `-target` will now be detected for `UIKit`, `AppKit` on macOS and linux
+* Index all swift files together when no `Package.swift` defined #14
 
 ## 2.3.0
 * Fixes autocompletion for methods and invocations leading to invalid syntax #9

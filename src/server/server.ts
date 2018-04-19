@@ -28,12 +28,12 @@ let documents: TextDocuments = new TextDocuments();
 // for open, change and close text document events
 documents.listen(connection);
 
-let allModulePaths: Map<string, string>;
-let allModuleSources: Map<string, Set<string>>;
+let allModulePaths: Map<string | null, string>;
+let allModuleSources: Map<string | null, Set<string>>;
 export function initializeModuleMeta() {
 	trace('***initializeModuleMeta***')
-	allModulePaths = new Map()
-	allModuleSources = new Map()
+	allModulePaths = new Map([[null, workspaceRoot]])
+	allModuleSources = new Map([[null, new Set()]])
 	const shPath = getShellExecPath()
 	trace('***getShellExecPath: ', shPath)
 	const sp = spawn(shPath, ["-c",
@@ -84,7 +84,12 @@ export function getAllSourcePaths(srcPath: string): string[] {
 			return Array.from(ss)
 		}
 	}
-	return null//can not find?
+	// when not found: interpret all global files
+	const globalSources = allModuleSources.get(null)
+	if (globalSources.has(srcPath) === false) {
+		globalSources.add(srcPath)
+	}
+	return Array.from(allModuleSources.get(null))
 }
 
 // After the server has started the client sends an initilize request. The server receives
@@ -201,23 +206,22 @@ documents.onDidChangeContent((change) => {
 connection.onDidChangeWatchedFiles((watched) => {
 	// trace('---','onDidChangeWatchedFiles');
 	watched.changes.forEach(e => {
-		let file;
+		let file: string;
+		function targetEntryForFile(filePath: string): [string | null, string] {
+			return Array.from(allModulePaths.entries())
+				.find(([targetName,]) => file.startsWith(targetName))
+				|| [null, allModulePaths.get(null)];
+		}
 		switch (e.type) {
 			case FileChangeType.Created:
 				file = fromUriString(e.uri)
-				for (const [m, p] of allModulePaths) {
-					if (file.startsWith(m)) {
-						allModuleSources.get(m).add(file)
-					}
-				}
+				const [targetNameToAdd,] = targetEntryForFile(file);
+				allModuleSources.get(targetNameToAdd).add(file);
 				break
 			case FileChangeType.Deleted:
 				file = fromUriString(e.uri)
-				for (const [m, p] of allModulePaths) {
-					if (file.startsWith(m)) {
-						allModuleSources.get(m).delete(file)
-					}
-				}
+				const [targetNameToDelete,] = targetEntryForFile(file);
+				allModuleSources.get(targetNameToDelete).delete(file);
 				break
 			default:
 			//do nothing

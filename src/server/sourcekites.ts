@@ -207,7 +207,7 @@ function request(
         ...server.loadArgsImportPaths(),
         ...inferredTargetArgs
     ])
-    console.log(compilerargs)
+
     srcText = JSON.stringify(srcText)
     let request = `{
   key.request: source.request.${requestType},
