@@ -5,7 +5,7 @@
 * Removed unused config `editor.quickSuggestions`
 * Will no longer write `sde.buildOnSave` or `editor.quickSuggestions` to workspace settings
 * `#` will now trigger completions
-* `-target` will now be detected for `UIKit`, `AppKit` on macOS and linux
+* `-target` will now be detected for `UIKit`, `AppKit`, `WatchKit` and `Foundation` on macOS and linux
 * Index all swift files together when no `Package.swift` defined #14
 
 ## 2.3.0

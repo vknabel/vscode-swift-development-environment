@@ -200,6 +200,7 @@ function request(
     /*const inferredOSArgs = process.platform === 'darwin'
         ? ["-target", "x86_64-apple-macosx10.10"]*/
     const inferredTargetArgs = targetArgumentsForImport('UIKit', 'iPhoneOS', 'arm64-apple-ios11.0')
+        || targetArgumentsForImport('WatchKit', 'WatchOS', 'armv7k-apple-watchos4.0')
         || targetArgumentsForImport('AppKit', 'MacOSX', 'x86_64-apple-macosx10.10')
         || defaultTargetArguments();
     const compilerargs = JSON.stringify([
