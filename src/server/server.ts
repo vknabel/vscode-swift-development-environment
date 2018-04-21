@@ -56,13 +56,12 @@ export function initializeModuleMeta() {
 		}
 	})
 	sp.stderr.on('data', (data) => {
-		if (isTracingOn) {
-			trace('***swift package describe stderr*** ', '' + data)
-		}
+		trace('***swift package describe stderr*** ', '' + data)
+		const globalSources = allModuleSources.get(null)
+		gatherAllSwiftFilesInPath(workspaceRoot)
+			.forEach(globalSources.add.bind(globalSources));
 	})
-	// sp.on('exit', function (code, signal) {
-	// 	trace('***swift package describe***', `code: ${code}, signal: ${signal}`)
-	// })
+
 	sp.on('error', function (err) {
 		trace('***swift package describe error*** ', (<Error>err).message)
 		if ((<Error>err).message.indexOf("ENOENT") > 0) {
@@ -73,6 +72,23 @@ export function initializeModuleMeta() {
 		}
 		throw err//FIXME more friendly prompt
 	});
+}
+
+function gatherAllSwiftFilesInPath(root: string): string[] {
+	const result = new Array<string>();
+	try {
+		const dir = fs.readdirSync(root).filter(sub => !sub.startsWith('.') && sub !== 'Carthage');
+		for (const sub of dir) {
+			if (path.extname(sub) === '.swift') {
+				result.push(path.join(root, sub));
+			} else {
+				result.push(...gatherAllSwiftFilesInPath(path.join(root, sub)));
+			}
+		}
+		return result;
+	} catch (error) {
+		return result;
+	}
 }
 
 export function getAllSourcePaths(srcPath: string): string[] {
