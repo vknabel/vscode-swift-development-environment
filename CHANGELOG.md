@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.2
+* Code format did fail #19
+* Code format always indented by 4 spaces. Now configurable.
+
+### Tabwidth
+By default `editor.tabSize` will be used. As this setting is global and affects all code, you can optionally override it using `"[swift]": { "tabSize": 2 }`.
+
 ## 2.3.1
 * Accidentially logged SourceKit's `key.kind` and `key.description`
 * Removed unused config `editor.quickSuggestions`

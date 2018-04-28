@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -146,9 +146,10 @@
   },
   "devDependencies": {
     "@types/bunyan": "latest",
+    "@types/js-yaml": "^3.11.1",
     "@types/node": "latest",
     "@types/xml-js": "^1.0.0",
-    "js-yaml": "^3.7.0",
+    "js-yaml": "^3.11.0",
     "mocha": "^2.3.3",
     "pegjs": "^0.10.0",
     "typescript": "^2.0.0",

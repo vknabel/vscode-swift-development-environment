@@ -131,7 +131,7 @@ connection.onInitialize((params: InitializeParams, cancellationToken): Initializ
 			// signatureHelpProvider: {
 			// 	triggerCharacters: ['[', ',']
 			// },
-			// We're prividing completions.
+			// We're providing completions.
 			completionProvider: {
 				resolveProvider: false,
 				triggerCharacters: [
@@ -147,6 +147,10 @@ connection.onInitialize((params: InitializeParams, cancellationToken): Initializ
 // The settings interface describe the server relevant settings part
 interface Settings {
 	swift: any;
+	editor: {
+		tabSize?: number
+	},
+	'[swift]': {}
 }
 
 
@@ -154,6 +158,7 @@ interface Settings {
 export let sdeSettings: any;
 export let swiftDiverBinPath: string = null;
 export let maxBytesAllowedForCodeCompletionResponse: number = 0;
+export let editorSettings: Settings['editor'] = {};
 //internal
 export let skProtocolPath = null
 export let skProtocolProcessAsShellCmd = false
@@ -165,7 +170,8 @@ let shellPath = null
 connection.onDidChangeConfiguration((change) => {
 	trace("-->onDidChangeConfiguration")
 	const settings = <Settings>change.settings
-	sdeSettings = settings.swift;//FIXME configs only accessed via the language id?
+	sdeSettings = settings.swift;
+	editorSettings = { ...settings.editor, ...settings['[swift]'] };
 
 	//FIXME does LS client support on-the-fly change?
 	maxNumProblems = sdeSettings.diagnosis.max_num_problems
@@ -489,8 +495,6 @@ connection.onDefinition(({textDocument, position}): Promise<Definition> => {
 			return err;
 		});
 })
-
-
 
 connection.onDocumentFormatting(({textDocument, options}): Promise<TextEdit[]> => {
 	const document: TextDocument = documents.get(textDocument.uri);

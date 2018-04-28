@@ -59,7 +59,7 @@ export function activate(context: ExtensionContext) {
 		// Register the server for plain text documents
 		documentSelector: ['swift'],
 		synchronize: {
-			configurationSection: 'swift',
+			configurationSection: ['swift', 'editor', '[swift]'],
 			// Notify the server about file changes to '.clientrc files contain in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/*.swift')
 		},

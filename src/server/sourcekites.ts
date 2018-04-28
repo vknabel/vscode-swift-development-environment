@@ -7,7 +7,9 @@ import {
 } from 'vscode-languageserver'
 
 import * as stream from 'stream'
+import * as yaml from 'js-yaml'
 import { ChildProcess } from "child_process";
+import { editorSettings } from './server';
 
 let skProtocolProcess: ChildProcess | null = null
 let skeHandler: SourcekiteResponseHandler | null = null
@@ -144,16 +146,16 @@ let reqCount = 0 //FIXME
 
 type RequestType = "codecomplete" | "cursorinfo" | "demangle" | "editor.open" | "editor.formattext"
 
-function parseSkResponse(resp: string): any {
-    return JSON.parse(jsonify(resp))
-}
-
 function pluck<T, K extends keyof T>(prop: K): (ofTarget: T) => T[K] {
     return target => target[prop];
 }
 
-function typedResponse(request: string, requestType: RequestType,
-    extraState: any = null, retries = 0): Promise<string> {
+function typedResponse<T>(request: string, requestType: RequestType,
+    extraState: any = null, retries = 0): Promise<T> {
+    function parseSkResponse(resp: string): any {
+        return yaml.safeLoad(resp);
+    }
+
     server.trace('to write request: ', request)
     const rid = reqCount++
     skProtocolProcess.stdin.write(rid + "\n")
@@ -168,7 +170,7 @@ function typedResponse(request: string, requestType: RequestType,
                 restartSourcekite();
                 return typedResponse(request, requestType, extraState, retries);
             }
-        })
+        }).then(parseSkResponse)
 }
 
 function request(
@@ -225,13 +227,12 @@ function request(
 //== codeComplete
 export function codeComplete(srcText: string, srcPath: string, offset: number): Promise<any> {
     return request("codecomplete", srcText, srcPath, offset)
-        .then(parseSkResponse).then(pluck("key.results"));
+        .then(pluck("key.results"));
 }
 
 //== cursorInfo
 export function cursorInfo(srcText: string, srcPath: string, offset: number): Promise<any> {
-    return request("cursorinfo", srcText, srcPath, offset)
-        .then(parseSkResponse);
+    return request("cursorinfo", srcText, srcPath, offset);
 }
 
 //== demangle
@@ -243,8 +244,8 @@ export function demangle(...demangledNames: string[]): Promise<any> {
 }
 
 `
-    return typedResponse(request, "demangle")
-        .then(parseSkResponse).then(pluck("key.results"))
+    return typedResponse<any>(request, "demangle")
+        .then(pluck("key.results"))
 }
 
 
@@ -260,7 +261,7 @@ export function editorFormatText(
         editorOpen(srcPath, srcText, false, false, true)
             .then((v) => {
                 // discard v
-                let p = requestEditorFormatText(srcPath, lineStart, 1, document)
+                let p = requestEditorFormatText({ file: srcPath, line: lineStart, document })
 
                 //TODO async-await
                 function nextp(fts: FormatTextState) {
@@ -269,7 +270,7 @@ export function editorFormatText(
                         let sPos: Position = { line: fts.line, character: 0 }
                         let ePos: Position = document.positionAt(
                             document.offsetAt({ line: fts.line + 1, character: 0 }) - 1)
-                        requestEditorFormatText(srcPath, fts.line + 1, 1, document)
+                        requestEditorFormatText({ file: srcPath, line: fts.line + 1, document })
                             .then(nextp)
                             .catch((err) => {
                                 reject(err)
@@ -307,8 +308,7 @@ function editorOpen(
 }
 
 `
-    return typedResponse(request, "editor.open")
-        .then(parseSkResponse)
+    return typedResponse(request, "editor.open");
 }
 
 interface FormatTextState {
@@ -316,43 +316,53 @@ interface FormatTextState {
     textEdit: TextEdit
 }
 
-function requestEditorFormatText(
-    keyName: string,
-    keyLine: number,
-    keyLength: number,//FIXME unuseful now
+interface SkFormatTextResponse {
+    'key.line': number;
+    'key.length': number;
+    'key.sourcetext': string;
+}
+
+function requestEditorFormatText(options: {
+    file: string,
+    line: number,
     document: TextDocument
-): Promise<FormatTextState> {
+}): Promise<FormatTextState> {
+    const indentationOptions = !editorSettings.tabSize
+        ? ''
+        : `key.editor.format.options: {
+            key.editor.format.indentwidth: ${editorSettings.tabSize},
+            key.editor.format.tabwidth: ${editorSettings.tabSize},
+            key.editor.format.usetabs: 0
+          }`;
     let request = `{
   key.request: source.request.editor.formattext,
-  key.name: "${keyName}",
-  key.line: ${keyLine},
-  key.length: ${keyLength},
+  key.name: "${options.file}",
+  key.line: ${options.line},
+  key.length: 1,
+  ${indentationOptions}
 }
 
 `;
-    let firstStartPos: Position = { line: keyLine - 1, character: 0 }
+    let firstStartPos: Position = { line: options.line - 1, character: 0 }
     let firstEndPos: Position =
-        keyLine != document.lineCount ?
-            document.positionAt(
-                document.offsetAt({ line: keyLine, character: 0 }) - 1) :
-            document.positionAt(
-                document.offsetAt({ line: document.lineCount, character: 0 }))
+        options.line != options.document.lineCount ?
+            options.document.positionAt(
+                options.document.offsetAt({ line: options.line, character: 0 }) - 1) :
+            options.document.positionAt(
+                options.document.offsetAt({ line: options.document.lineCount, character: 0 }))
     const extraState = {
-        keyLine: keyLine,
+        keyLine: options.line,
         lineRange: { start: firstStartPos, end: firstEndPos }//NOTE format req is 1-based
     }
     return typedResponse(request, "editor.formattext")
-        .then((resp: string) => {
+        .then((resp: SkFormatTextResponse) => {
             const keyLine = extraState.keyLine
             const lineRange = extraState.lineRange
-            let offSetEnd = resp.lastIndexOf("\"");
-            let offSetStart = resp.indexOf("\"", resp.lastIndexOf("key.sourcetext:")) + 1
-            let lineText = resp.substring(offSetStart, offSetEnd)
             return {
                 line: keyLine,
                 textEdit: {
                     range: lineRange,
-                    newText: JSON.parse(`"${lineText}"`) //NOTE convert back, silly...
+                    newText: resp['key.sourcetext']
                 }
             }
         })
@@ -372,18 +382,4 @@ function debugLog(msg: string) {
 
 function booleanToInt(v: boolean): Number {
     return v ? 1 : 0
-}
-
-const cutOffPrefix = "key.results:";
-function cutOffResponse(s: string): string {
-    s = s.substring(s.indexOf(cutOffPrefix) + cutOffPrefix.length, s.length)
-    s = s.substring(0, s.lastIndexOf("key.kind:"))
-    s = s.substring(0, s.lastIndexOf(",")) + "]"
-    return jsonify(s);
-}
-
-function jsonify(s: string): string {
-    return s
-        .replace(/(key\.[a-z_.]+):/g, '"$1":')
-        .replace(/(source\.[a-z_.]+),/g, '"$1",')
 }
