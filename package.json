@@ -84,6 +84,11 @@
             "type": "string"
           }
         },
+        "sde.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wether SDE shall be executed."
+        },
         "sde.enableTracing.client": {
           "type": "boolean",
           "default": false,

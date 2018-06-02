@@ -38,6 +38,9 @@ function shouldBuildOnSave(): boolean {
 }
 
 export function activate(context: ExtensionContext) {
+	if (workspace.getConfiguration().get<boolean>('sde.enable') === false) {
+		return;
+	}
 	//debug
 	context.subscriptions.push(debug.registerDebugConfigurationProvider('swift', new SwiftConfigurationProvider()));
 
