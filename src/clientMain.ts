@@ -19,6 +19,7 @@ const LENGTH_PKG_FILE_NAME: number = "Package.swift".length
 const PUBLISHER_NAME = "jinmingjian.sde"
 
 let swiftBinPath: string | null = null
+let swiftBuildParams: string[] = ['build']
 let swiftPackageManifestPath: string | null = null
 let skProtocolProcess: string | null = null
 let skProtocolProcessAsShellCmd: string | null = null
@@ -90,7 +91,8 @@ export function activate(context: ExtensionContext) {
 			tools.buildPackage(
 				swiftBinPath,
 				workspace.rootPath,
-				null)
+				swiftBuildParams
+			)
 		}
 	}
 	//commands
@@ -195,6 +197,7 @@ export function dumpInConsole(msg: string) {
 
 function checkToolsAvailability() {
 	swiftBinPath = <string>workspace.getConfiguration().get('swift.path.swift_driver_bin')
+	swiftBuildParams = <string[]>workspace.getConfiguration().get('sde.swiftBuildingParams') || ['build']
 	const sourcekitePath = <string>workspace.getConfiguration().get('swift.path.sourcekite')
 	const sourcekitePathEnableShCmd = <string>workspace.getConfiguration().get('swift.path.sourcekiteDockerMode')
 	const shellPath = <string>workspace.getConfiguration().get('swift.path.shell')

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.4.0
+* Bumped internal dependencies to be more reliable on newer vscode versions
+* New setting `sde.swiftBuildingParams` allows run other commands than `swift build` #24 jinmingjian/sde#32
+
+### Building Params
+It is now possible to run different commands when building swift code.
+* `"sde.swiftBuildingParams": ["build"]`: default setting
+* `"sde.swiftBuildingParams": ["build", "--build-path", ".vscode-build"]`: build in different directory, see #24
+* `"sde.swiftBuildingParams": ["build", "--build-tests"]`: compile tests, but do not run them
+* `"sde.swiftBuildingParams": ["test"]`: runs unit tests jinmingjian/sde#32
+
 ## 2.3.2
 * Code format did fail #19
 * Code format always indented by 4 spaces. Now configurable.

@@ -99,6 +99,14 @@
           "default": true,
           "description": "Indicates wether SDE shall build the project on save."
         },
+        "sde.swiftBuildingParams": {
+          "type": "array",
+          "description": "The params that shall be passed to the swift command.",
+          "default": ["build"],
+          "items": {
+            "type": "string"
+          }
+        },
         "swift.diagnosis.max_num_problems": {
           "type": "number",
           "default": 100,
@@ -145,9 +153,9 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
-    "@types/bunyan": "latest",
+    "@types/bunyan": "^1.8.4",
     "@types/js-yaml": "^3.11.1",
-    "@types/node": "latest",
+    "@types/node": "^10.1.2",
     "@types/xml-js": "^1.0.0",
     "js-yaml": "^3.11.0",
     "mocha": "^2.3.3",
