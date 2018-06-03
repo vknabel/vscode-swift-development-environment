@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -20,7 +20,7 @@
     "url": "https://github.com/vknabel/vscode-swift-development-environment"
   },
   "engines": {
-    "vscode": "^1.17.0"
+    "vscode": "^1.20.0"
   },
   "categories": [
     "Programming Languages"
@@ -107,7 +107,9 @@
         "sde.swiftBuildingParams": {
           "type": "array",
           "description": "The params that shall be passed to the swift command.",
-          "default": ["build"],
+          "default": [
+            "build"
+          ],
           "items": {
             "type": "string"
           }
@@ -119,6 +121,18 @@
         }
       }
     },
+    "languages": [
+      {
+        "id": "swift",
+        "extensions": [
+          ".swift"
+        ],
+        "aliases": [
+          "Swift"
+        ],
+        "firstLine": "^#!/.*\\bswift[0-9.-]*\\b"
+      }
+    ],
     "breakpoints": [
       {
         "language": "swift"
@@ -162,19 +176,19 @@
     "@types/js-yaml": "^3.11.1",
     "@types/node": "^10.1.2",
     "@types/xml-js": "^1.0.0",
-    "js-yaml": "^3.11.0",
     "mocha": "^2.3.3",
     "pegjs": "^0.10.0",
     "typescript": "^2.0.0",
-    "vscode": "^1.0.0"
+    "vscode": "^1.1.18"
   },
   "dependencies": {
     "bunyan": "^1.8.5",
+    "js-yaml": "^3.11.0",
     "fs-promise": "^1.0.0",
     "vscode-debugadapter": "^1.25.0",
     "vscode-debugprotocol": "^1.15.0",
-    "vscode-languageclient": "^3.0.2-beta.5",
-    "vscode-languageserver": "^3.0.2-beta.5",
+    "vscode-languageclient": "^4.1.4",
+    "vscode-languageserver": "^4.1.3",
     "xml-js": "^1.6.2"
   }
 }

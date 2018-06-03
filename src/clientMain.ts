@@ -41,10 +41,9 @@ export function activate(context: ExtensionContext) {
 	if (workspace.getConfiguration().get<boolean>('sde.enable') === false) {
 		return;
 	}
+	initConfig()
 	//debug
 	context.subscriptions.push(debug.registerDebugConfigurationProvider('swift', new SwiftConfigurationProvider()));
-
-	initConfig()
 
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(path.join('out/src/server', 'server.js'));
@@ -54,14 +53,17 @@ export function activate(context: ExtensionContext) {
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
 	let serverOptions: ServerOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
+		run: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
 		debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
 	}
 
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
-		documentSelector: ['swift'],
+		documentSelector: [
+			{ language: 'swift', scheme: 'file' },
+			{ pattern: '*.swift', scheme: 'file' }
+		],
 		synchronize: {
 			configurationSection: ['swift', 'editor', '[swift]'],
 			// Notify the server about file changes to '.clientrc files contain in the workspace
@@ -76,8 +78,8 @@ export function activate(context: ExtensionContext) {
 	}
 
 	// Create the language client and start the client.
-	let disposable = new LanguageClient('Swift', serverOptions, clientOptions).start()
-
+	const langClient = new LanguageClient('Swift', serverOptions, clientOptions)
+	let disposable = langClient.start()
 	context.subscriptions.push(disposable)
 	diagnosticCollection = languages.createDiagnosticCollection('swift');
 	context.subscriptions.push(diagnosticCollection);

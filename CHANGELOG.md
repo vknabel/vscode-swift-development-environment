@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.1
+* Extension did not work correctly
+* Can now be disabled by `"sde.enable": false`
+
 ## 2.4.0
 * Bumped internal dependencies to be more reliable on newer vscode versions
 * New setting `sde.swiftBuildingParams` allows run other commands than `swift build` #24 jinmingjian/sde#32
