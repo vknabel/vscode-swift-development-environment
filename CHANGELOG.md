@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.2
+* Dummy module did always precede real ones leading to bad completion behavior
+
 ## 2.4.1
 * Extension did not work correctly
 * Can now be disabled by `"sde.enable": false`
