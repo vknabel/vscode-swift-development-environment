@@ -1,6 +1,10 @@
 # Changelog
 
+## 2.4.3
+* Hotfix release: fixes autocompletion
+
 ## 2.4.2
+*Broken release*
 * Dummy module did always precede real ones leading to bad completion behavior
 
 ## 2.4.1

@@ -94,7 +94,7 @@ function gatherAllSwiftFilesInPath(root: string): string[] {
 export function getAllSourcePaths(srcPath: string): string[] {
 	const sp = path.dirname(srcPath)
 	for (let [moduleName, modulePath] of allModulePaths) {
-		if (moduleName != null && path.normalize(modulePath) === path.normalize(sp)) {
+		if (moduleName != null && path.normalize(sp).includes(path.normalize(modulePath))) {
 			let ss = allModuleSources.get(moduleName)
 			// trace("**getAllDocumentPaths** ", Array.from(ss).join(","))
 			return Array.from(ss)
