@@ -41,7 +41,7 @@ An example config can be seen below. `program` should contain the path to your b
 > If you do, please file an issue or write me an [email](mailto:dev@vknabel.com).
 
 ```js
-// .vscode.json/launch.json
+// .vscode/launch.json
 {
     "version": "0.2.0",
     "configurations": [
@@ -58,7 +58,7 @@ An example config can be seen below. `program` should contain the path to your b
 ```
 
 ```js
-// .vscode.json/tasks.json
+// .vscode/tasks.json
 {
     "version": "2.0.0",
     "tasks": [
