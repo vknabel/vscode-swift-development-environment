@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.4
+* Hotfix release: outdated vscode dependencies #31 (thanks to @akdor1154)
+
 ## 2.4.3
 * Hotfix release: fixes autocompletion
 
