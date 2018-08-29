@@ -9,25 +9,27 @@
 ![preview](docs/preview.gif)
 
 ## Installation
+
 1. Install the [extension](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment) itself.
 2. Install the companion project [sourcekite](https://github.com/vknabel/sourcekite).
 
-	```bash
-	$ git clone https://github.com/vknabel/sourcekite
-	$ cd sourcekite
+   ```bash
+   $ git clone https://github.com/vknabel/sourcekite
+   $ cd sourcekite
 
-	# For Linux
-    # Ensure LD_LIBRARY_PATH contains /your/swift/usr/lib
-    # And have sudo ln -s /usr/lib/sourcekitdInProc /your/swift/usr/lib/libsourcekitdInProc.so
-	$ swift build -Xlinker -l:sourcekitdInProc -c release
+   # For Linux
+   # Ensure LD_LIBRARY_PATH contains /your/swift/usr/lib
+   # And have sudo ln -s /usr/lib/sourcekitdInProc /your/swift/usr/lib/libsourcekitdInProc.so
+   $ swift build -Xlinker -l:sourcekitdInProc -c release
 
-	# For macOS (when using swiftenv or multiple Toolchains)
-	$ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -Xlinker -rpath -Xlinker /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -c release
+   # For macOS (when using swiftenv or multiple Toolchains)
+   $ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -Xlinker -rpath -Xlinker /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -c release
 
-	# For macOS (using Xcode's Toolchain)
-	$ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -Xlinker -rpath -Xlinker /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -c release
-	```
-3. Add the *absolute* path to your compiled sourcekite binary `swift.path.sourcekite` to your vscode settings as `/path/to/your/sourcekite-bin/.build/release/sourcekite`.
+   # For macOS (using Xcode's Toolchain)
+   $ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -Xlinker -rpath -Xlinker /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -c release
+   ```
+
+3. Add the _absolute_ path to your compiled sourcekite binary `swift.path.sourcekite` to your vscode settings as `/path/to/your/sourcekite-bin/.build/release/sourcekite`.
 
 If you experience any problems during installation, file an issue or write me an [email](mailto:dev@vknabel.com). All kind of feedback helps especially when trying to automate this.
 
@@ -71,8 +73,9 @@ An example config can be seen below. `program` should contain the path to your b
 ```
 
 ## Contributors
-- Valentin Knabel, [@vknabel](https://github.com/vknabel), [twitter](https://twitter.com/vknabel), *maintainer*
-- Jin Mingjian, [@JinMingjian](https://github.com/JinMingjian), [twitter](https://twitter.com/JinMingjian), *author*
+
+- Valentin Knabel, [@vknabel](https://github.com/vknabel), [twitter](https://twitter.com/vknabel), _maintainer_
+- Jin Mingjian, [@JinMingjian](https://github.com/JinMingjian), [twitter](https://twitter.com/JinMingjian), _author_
 - Felix Fischer, [@felix91gr](https://github.com/felix91gr), [twitter](https://twitter.com/FelixFischer91)
 
 ## FAQ
@@ -94,7 +97,9 @@ Just add `"sde.sourcekit.compilerOptions": ["-target", "arm64-apple-ios11.0"]` t
 If so, file an [issue](https://github.com/vknabel/swift-development-environment/issues), please :)
 
 ## License
+
 Apache License v2.
 
 ## 3rd-party Sources Thanks
+
 1. [dbgmits](https://github.com/enlight/dbgmits), very nice structure of sources, but of which in my heavy modification to support non-MI and much more

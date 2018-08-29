@@ -169,7 +169,8 @@
     "peg1": "pegjs -o out/src/debug/lldbmi/mi_output_parser.js src/debug/lldbmi/mi_output_grammar.pegjs",
     "peg2": "pegjs -o out/src/debug/lldbmi/raw_command_output_parser.js src/debug/lldbmi/raw_command_output_parser.pegjs",
     "copy-parser-dts": "cp src/debug/lldbmi/mi_output_parser.d.ts out/src/debug/lldbmi/mi_output_parser.d.ts",
-    "postinstall": "node ./node_modules/vscode/bin/install"
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "format": "prettier CHANGELOG.md README.md src/*.ts src/server/**/*.ts tsconfig.json --write"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.4",
@@ -178,13 +179,14 @@
     "@types/xml-js": "^1.0.0",
     "mocha": "^2.3.3",
     "pegjs": "^0.10.0",
+    "prettier": "^1.14.2",
     "typescript": "^2.0.0",
     "vscode": "^1.1.18"
   },
   "dependencies": {
     "bunyan": "^1.8.5",
-    "js-yaml": "^3.11.0",
     "fs-promise": "^1.0.0",
+    "js-yaml": "^3.11.0",
     "vscode-debugadapter": "^1.25.0",
     "vscode-debugprotocol": "^1.15.0",
     "vscode-languageclient": "^5.0.1",
