@@ -2,16 +2,8 @@
 
 import * as server from "./server";
 
-import {
-  DocumentFormattingParams,
-  TextEdit,
-  Files,
-  TextDocument,
-  Range,
-  Position
-} from "vscode-languageserver";
+import { TextEdit, TextDocument, Position } from "vscode-languageserver";
 
-import * as stream from "stream";
 import * as yaml from "js-yaml";
 import { ChildProcess } from "child_process";
 import { editorSettings } from "./server";

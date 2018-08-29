@@ -1,15 +1,6 @@
 "use strict";
 
-import {
-  workspace,
-  commands,
-  Disposable,
-  ExtensionContext,
-  Uri,
-  Diagnostic,
-  DiagnosticSeverity,
-  Range
-} from "vscode";
+import { Uri, Diagnostic, DiagnosticSeverity, Range } from "vscode";
 import cp = require("child_process");
 import {
   trace,

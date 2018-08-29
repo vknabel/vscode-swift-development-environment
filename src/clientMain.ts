@@ -3,34 +3,25 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as tools from "./SwiftTools";
-import * as os from "os";
 import {
   workspace,
   window,
   commands,
   languages,
-  extensions,
-  Disposable,
   ExtensionContext,
-  Uri,
   DiagnosticCollection,
   StatusBarItem,
   StatusBarAlignment,
   OutputChannel,
-  debug,
-  env
+  debug
 } from "vscode";
 import {
   LanguageClient,
   LanguageClientOptions,
-  SettingMonitor,
   ServerOptions,
   TransportKind
 } from "vscode-languageclient";
 import { SwiftConfigurationProvider } from "./SwiftConfigurationProvider";
-
-const LENGTH_PKG_FILE_NAME: number = "Package.swift".length;
-const PUBLISHER_NAME = "jinmingjian.sde";
 
 let swiftBinPath: string | null = null;
 let swiftBuildParams: string[] = ["build"];

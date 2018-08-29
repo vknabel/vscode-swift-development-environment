@@ -3,8 +3,8 @@ import * as vscode from "vscode";
 export class SwiftConfigurationProvider
   implements vscode.DebugConfigurationProvider {
   provideDebugConfigurations(
-    folder: vscode.WorkspaceFolder | undefined,
-    token?: vscode.CancellationToken
+    _folder: vscode.WorkspaceFolder | undefined,
+    _token?: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.DebugConfiguration[]> {
     return [
       {
