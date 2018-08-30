@@ -35,16 +35,15 @@ If you experience any problems during installation, file an issue or write me an
 
 SDE has a built-in Swift debugger which has been deprecated. Instead use [LLDB Debugger](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) which powers more features and is more stable.
 
-An example config can be seen below. `program` should contain the path to your built executable, the `preLaunchTask` is optional, but will run `swift build` before each debug session to keep your binaries up to date.
-
-> **Note:** Currently I don't know of any reliable solution to debug your Swift tests.
-> If you do, please file an issue or write me an [email](mailto:dev@vknabel.com).
+Below is an example configuration supporting running executable targets, unit tests on macOS and Linux.
+Relevant files will be compiled using the pre-launch-tasks.
 
 ```js
 // .vscode/launch.json
 {
     "version": "0.2.0",
     "configurations": [
+        // Running executables
         {
             "type": "lldb",
             "request": "launch",
@@ -53,7 +52,26 @@ An example config can be seen below. `program` should contain the path to your b
             "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "swift-build"
+        },
+        // Running unit tests
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug tests on macOS",
+            "program": "<path to xctest executable>", //For example /Applications/Xcode.app/Contents/Developer/usr/bin/xctest
+            "args": [
+                "${workspaceFolder}.build/debug/<xctest bundle name>.xctest"
+            ],
+            "preLaunchTask": "swift-build-tests"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug tests on Linux",
+            "program": "./.build/x86_64-unknown-linux/debug/YourPackageTests.xctest",
+            "preLaunchTask": "swift-build-tests"
         }
+    ]
 }
 ```
 
@@ -62,10 +80,22 @@ An example config can be seen below. `program` should contain the path to your b
 {
     "version": "2.0.0",
     "tasks": [
+        // compile your SPM project
         {
             "label": "swift-build",
             "type": "shell",
             "command": "swift build"
+        },
+        // compile your SPM tests
+        {
+            "label": "swift-build-tests",
+            "type": "process",
+            "command": "swift",
+            "group": "build",
+            "args": [
+                "build",
+                "--build-tests"
+            ]
         }
 }
 ```
