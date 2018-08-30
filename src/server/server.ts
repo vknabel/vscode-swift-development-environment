@@ -44,7 +44,9 @@ documents.listen(connection);
 
 let targets: Target[] | null;
 export async function initializeModuleMeta() {
-  targets = await availablePackages(workspaceRoot);
+  const loadingTargets = Current.config.workspacePaths.map(availablePackages);
+  const loadedTargets = await Promise.all(loadingTargets);
+  targets = [].concat(...loadedTargets);
 }
 
 export function targetForSource(srcPath: string): Target {
@@ -60,22 +62,23 @@ export function targetForSource(srcPath: string): Target {
 }
 
 // After the server has started the client sends an initilize request. The server receives
-// in the passed params the rootPath of the workspace plus the client capabilites.
-export let workspaceRoot: string;
+// in the passed params the root paths of the workspaces plus the client capabilites.
 connection.onInitialize(
   (params: InitializeParams, cancellationToken): InitializeResult => {
     Current.config.isTracingOn =
       params.initializationOptions.isLSPServerTracingOn;
+    Current.config.workspacePaths = params.workspaceFolders.map(({ uri }) =>
+      uri.replace("file://", "")
+    );
     skProtocolPath = params.initializationOptions.skProtocolProcess;
     skProtocolProcessAsShellCmd =
       params.initializationOptions.skProtocolProcessAsShellCmd;
     skCompilerOptions = params.initializationOptions.skCompilerOptions;
-    trace(
+    Current.log(
       "-->onInitialize ",
       `isTracingOn=[${Current.config.isTracingOn}],
 	skProtocolProcess=[${skProtocolPath}],skProtocolProcessAsShellCmd=[${skProtocolProcessAsShellCmd}]`
     );
-    workspaceRoot = params.rootPath;
     return {
       capabilities: {
         // Tell the client that the server works in FULL text document sync mode
@@ -114,8 +117,6 @@ interface Settings {
 }
 
 //external
-export let sdeSettings: any;
-export let swiftDiverBinPath: string = null;
 export let maxBytesAllowedForCodeCompletionResponse: number = 0;
 export let editorSettings: Settings["editor"] = {};
 //internal
@@ -123,23 +124,24 @@ export let skProtocolPath = null;
 export let skProtocolProcessAsShellCmd = false;
 export let skCompilerOptions: string[] = [];
 let maxNumProblems = null;
-let shellPath = null;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration(change => {
-  trace("-->onDidChangeConfiguration");
+  Current.log("-->onDidChangeConfiguration");
   const settings = <Settings>change.settings;
-  sdeSettings = settings.swift;
+  const sdeSettings = settings.swift;
   editorSettings = { ...settings.editor, ...settings["[swift]"] };
 
   //FIXME does LS client support on-the-fly change?
   maxNumProblems = sdeSettings.diagnosis.max_num_problems;
-  swiftDiverBinPath = sdeSettings.path.swift_driver_bin;
-  shellPath = sdeSettings.path.shell;
+  Current.config.sourcekitePath = sdeSettings.path.sourcekite;
+  Current.config.swiftPath = sdeSettings.path.swift_driver_bin;
+  Current.config.shellPath = sdeSettings.path.shell || "/bin/bash";
+  Current.config.targets = sdeSettings.targets || [];
 
-  trace(`-->onDidChangeConfiguration tracing:
-	    swiftDiverBinPath=[${swiftDiverBinPath}],
-		shellPath=[${shellPath}]`);
+  Current.log(`-->onDidChangeConfiguration tracing:
+	    swiftDiverBinPath=[${Current.config.swiftPath}],
+		shellPath=[${Current.config.shellPath}]`);
 
   //FIXME reconfigure when configs haved
   sourcekitProtocol.initializeSourcekite();
@@ -179,7 +181,7 @@ function validateTextDocument(textDocument: TextDocument): void {
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
   validateTextDocument(change.document);
-  trace("---onDidChangeContent");
+  Current.log("---onDidChangeContent");
 });
 
 connection.onDidChangeWatchedFiles(watched => {
@@ -541,15 +543,7 @@ function decode(str) {
 
 //FIX issue#15
 export function getShellExecPath() {
-  return fs.existsSync(shellPath) ? shellPath : "/usr/bin/sh";
-}
-
-export function trace(prefix: string, msg?: string) {
-  if (Current.config.isTracingOn) {
-    if (msg) {
-      connection.console.log(prefix + msg);
-    } else {
-      connection.console.log(prefix);
-    }
-  }
+  return fs.existsSync(Current.config.shellPath)
+    ? Current.config.shellPath
+    : "/usr/bin/sh";
 }

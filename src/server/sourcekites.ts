@@ -30,11 +30,12 @@ function restartSourcekite() {
 
 function createSkProtocolProcess() {
   if (server.skProtocolProcessAsShellCmd) {
+    const volumes = Current.config.workspacePaths.map(
+      path => `-v '${path}:${path}'`
+    );
     return server.spawn(server.getShellExecPath(), [
       "-c",
-      `docker run --rm -v ${server.workspaceRoot}:${
-        server.workspaceRoot
-      } -i jinmingjian/docker-sourcekite`
+      `docker run --rm ${volumes} -i jinmingjian/docker-sourcekite`
     ]);
   } else {
     return server.spawn(server.skProtocolPath);
@@ -42,35 +43,36 @@ function createSkProtocolProcess() {
 }
 
 function initializeSKProtocolProcess() {
-  debugLog(
+  Current.log(
+    "sourcekite",
     `***sourcekite initializing with skProtocolProcess at [${
       server.skProtocolPath
     }]`
   );
 
-  const pathSourcekite = server.sdeSettings.path.sourcekite;
+  const pathSourcekite = Current.config.sourcekitePath;
 
   skProtocolProcess = createSkProtocolProcess();
   skProtocolProcess.stderr.on("data", data => {
-    if (Current.config.isTracingOn) {
-      debugLog("***stderr***" + data);
-    }
+    Current.log("sourcekite", "***stderr***" + data);
   });
   skProtocolProcess.on("exit", function(code, signal) {
-    debugLog("***sourcekite exited***" + `code: ${code}, signal: ${signal}`);
-    debugLog("***sourcekite exited***" + "to spawn a new sourcekite process");
+    Current.log("sourcekite", "[exited]", `code: ${code}, signal: ${signal}`);
     //NOTE this is not guaranteed to reboot, but we just want it 'not guaranteed'
     skProtocolProcess = createSkProtocolProcess();
   });
   skProtocolProcess.on("error", function(err) {
-    debugLog("***sourcekitd_repl error***" + (<Error>err).message);
+    Current.log(
+      "sourcekite",
+      "***sourcekitd_repl error***" + (<Error>err).message
+    );
     if ((<Error>err).message.indexOf("ENOENT") > 0) {
       const msg =
         "The '" +
         pathSourcekite +
         "' command is not available." +
         " Please check your swift executable user setting and ensure it is installed.";
-      debugLog("***sourcekitd_repl not found***" + msg);
+      Current.log("sourcekite", "***sourcekitd_repl not found***" + msg);
     }
     throw err;
   });
@@ -101,7 +103,7 @@ class SourcekiteResponseHandler {
 
   constructor() {
     skProtocolProcess.stdout.on("data", this.handleResponse.bind(this));
-    debugLog("-->SourcekiteResponseHandler constructor done");
+    Current.log("-->SourcekiteResponseHandler constructor done");
   }
 
   // private hasError = false
@@ -110,7 +112,7 @@ class SourcekiteResponseHandler {
   private handleResponse(data): void {
     this.output += data;
     if (Current.config.isTracingOn) {
-      server.trace("", "" + data);
+      Current.log("SourcekiteResponseHandler", data);
     }
     if (this.output.endsWith("}\n\n")) {
       const idx = this.output.indexOf("\n");
@@ -128,7 +130,7 @@ class SourcekiteResponseHandler {
       try {
         resolve(res);
       } catch (e) {
-        debugLog(`---error: ${e}`);
+        Current.log(`---error: ${e}`);
         reject(e);
       }
     }
@@ -178,7 +180,7 @@ function typedResponse<T>(
     return yaml.safeLoad(resp);
   }
 
-  server.trace("to write request: ", request);
+  Current.log("request", request);
   const rid = reqCount++;
   skProtocolProcess.stdin.write(rid + "\n");
   skProtocolProcess.stdin.write(request);
@@ -432,17 +434,6 @@ function requestEditorFormatText(options: {
       };
     }
   );
-}
-
-function log<T>(prefix: string): (value: T) => T {
-  return value => {
-    console.log(prefix, value);
-    return value;
-  };
-}
-
-function debugLog(msg: string) {
-  server.trace(msg);
 }
 
 function booleanToInt(v: boolean): Number {

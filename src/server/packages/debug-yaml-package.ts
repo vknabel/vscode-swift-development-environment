@@ -23,7 +23,12 @@ interface LLCommand {
 }
 
 export const debugYamlPackage: Package = async fromPath => {
-  const debugContents = await contentsOfDebugOrReleaseYaml(fromPath);
+  let debugContents: string;
+  try {
+    debugContents = await contentsOfDebugOrReleaseYaml(fromPath);
+  } catch (error) {
+    return [];
+  }
   const debugYaml = yaml.safeLoad(debugContents) as DebugYaml;
   const targets: Target[] = [];
   for (const name in debugYaml.commands) {
@@ -42,7 +47,6 @@ export const debugYamlPackage: Package = async fromPath => {
       compilerArguments: compilerArgumentsForCommand(command)
     });
   }
-  console.log(targets);
   return targets;
 };
 

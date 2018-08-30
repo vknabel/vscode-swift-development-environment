@@ -3,12 +3,20 @@ export interface Current {
   report(label: string, ...details: any[]);
   spawn(command: string): Promise<string>;
   swift(inPath: string, command: string): Promise<string>;
-  defaultCompilerArguments: () => string[];
+  defaultCompilerArguments(): string[];
   config: {
     isTracingOn: boolean;
     swiftPath: string;
+    sourcekitePath: string;
     shellPath: string;
     sourceKitCompilerOptions: string[];
+    workspacePaths: string[];
+    targets: Array<{
+      name: string;
+      path: string;
+      sources?: string[];
+      compilerArguments?: string[];
+    }>;
   };
 }
 
@@ -20,7 +28,7 @@ async function spawn(cmd: string) {
     sp.stdout.on("data", data => {
       resolve(data as string);
     });
-    sp.on("error", error => {
+    sp.on("exit", error => {
       reject(error);
     });
   });
@@ -29,10 +37,14 @@ async function swift(inPath: string, cmd: string) {
   return await this.spawn(`cd ${inPath} && ${Current.config.swiftPath} ${cmd}`);
 }
 function log(label: string, ...details: any[]) {
-  console.log(`[${label}]`, ...details);
+  if (Current.config.isTracingOn) {
+    console.log(`[${label}]`, ...details);
+  }
 }
 function report(label: string, ...details: any[]) {
-  console.log(`[ERROR][${label}]`, ...details);
+  if (Current.config.isTracingOn) {
+    console.log(`[ERROR][${label}]`, ...details);
+  }
 }
 function defaultCompilerArguments() {
   return [
@@ -59,9 +71,12 @@ export let Current: Current = {
   swift,
   defaultCompilerArguments,
   config: {
+    workspacePaths: [],
     isTracingOn: false,
     swiftPath: "$(which swift)",
+    sourcekitePath: "$(which sourcekite)",
     shellPath: "/bin/bash",
-    sourceKitCompilerOptions: []
+    sourceKitCompilerOptions: [],
+    targets: []
   }
 };

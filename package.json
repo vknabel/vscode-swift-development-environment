@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.4.4",
+  "version": "2.5.0",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -78,10 +78,49 @@
         },
         "sde.sourcekit.compilerOptions": {
           "type": "array",
-          "description": "Optional compiler options like the target or search paths.",
+          "description": "Optional compiler options like the target or search paths. Will only be used as default. `(debug|release).yaml` builds will override these settings.",
           "default": [],
           "items": {
             "type": "string"
+          }
+        },
+        "swift.targets": {
+          "type": "array",
+          "description": "If SDE cannot reliably detect all targets, you can manually configure them.",
+          "default": [],
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "required": true,
+                "description": "The module name of the target. Will be passed as -module-name."
+              },
+              "path": {
+                "type": "string",
+                "required": true,
+                "description": "The reference path."
+              },
+              "sources": {
+                "required": false,
+                "type": "array",
+                "description": "An array of globs to determine all sources within the current target.",
+                "default": [
+                  "**/*.swift"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "compilerArguments": {
+                "type": "array",
+                "required": false,
+                "description": "Additional compiler arguments to be passed.",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "sde.enable": {
@@ -174,6 +213,7 @@
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.4",
+    "@types/glob": "^5.0.35",
     "@types/js-yaml": "^3.11.1",
     "@types/node": "^10.1.2",
     "@types/xml-js": "^1.0.0",
@@ -186,6 +226,7 @@
   "dependencies": {
     "bunyan": "^1.8.5",
     "fs-promise": "^1.0.0",
+    "glob": "^7.1.3",
     "js-yaml": "^3.11.0",
     "vscode-debugadapter": "^1.25.0",
     "vscode-debugprotocol": "^1.15.0",
