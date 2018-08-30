@@ -7,6 +7,7 @@ import { TextEdit, TextDocument, Position } from "vscode-languageserver";
 import * as yaml from "js-yaml";
 import { ChildProcess } from "child_process";
 import { editorSettings } from "./server";
+import { Current } from "./current";
 
 let skProtocolProcess: ChildProcess | null = null;
 let skeHandler: SourcekiteResponseHandler | null = null;
@@ -51,7 +52,7 @@ function initializeSKProtocolProcess() {
 
   skProtocolProcess = createSkProtocolProcess();
   skProtocolProcess.stderr.on("data", data => {
-    if (server.isTracingOn) {
+    if (Current.config.isTracingOn) {
       debugLog("***stderr***" + data);
     }
   });
@@ -108,7 +109,7 @@ class SourcekiteResponseHandler {
   // private rid = -1
   private handleResponse(data): void {
     this.output += data;
-    if (server.isTracingOn) {
+    if (Current.config.isTracingOn) {
       server.trace("", "" + data);
     }
     if (this.output.endsWith("}\n\n")) {
@@ -231,8 +232,9 @@ function request(
         ];
   }
 
-  const sourcePaths = server.getAllSourcePaths(srcPath);
-  const loadedArgs = server.loadArgsImportPaths();
+  const target = server.targetForSource(srcPath);
+  const sourcePaths = Array.from(target.sources);
+  const loadedArgs = target.compilerArguments;
   /*const inferredOSArgs = process.platform === 'darwin'
         ? ["-target", "x86_64-apple-macosx10.10"]*/
   const inferredTargetArgs =
@@ -245,8 +247,8 @@ function request(
     targetArgumentsForImport("AppKit", "MacOSX", "x86_64-apple-macosx10.10") ||
     defaultTargetArguments();
   const compilerargs = JSON.stringify([
+    ...target.compilerArguments,
     ...(sourcePaths || [srcPath]),
-    ...server.loadArgsImportPaths(),
     ...inferredTargetArgs
   ]);
 
