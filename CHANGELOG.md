@@ -1,8 +1,34 @@
 # Changelog
 
+## 2.5.0
+
+- Autocompletion for SPM dependencies #27 (thanks to [@yeswolf](https://github.com/yeswolf))
+- Better support for vscode workspaces
+- New setting `swift.targets` for supporting autocompletion if SDE can't.
+
+Especially when using Xcode projects SDE cannot infer the correct compiler arguments. Now you can fix this by explicitly supplying targets with their sources and compiler arguments. SDE will still detect other targets automatically.
+
+```json
+{
+  "swift.targets": [
+    {
+      "name": "YourWatchExtension",
+      "path": "YourProject/YourWatchExtension",
+      "sources": ["**/*.swift"],
+      "compilerArguments": [
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk",
+        "-target",
+        "armv7k-apple-watchos4.0"
+      ]
+    }
+  ]
+}
+```
+
 ## 2.4.4
 
-- Hotfix release: outdated vscode dependencies #31 (thanks to @akdor1154)
+- Hotfix release: outdated vscode dependencies #31 (thanks to [@akdor1154](https://github.com/akdor1154))
 
 ## 2.4.3
 
