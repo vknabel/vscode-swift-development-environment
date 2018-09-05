@@ -112,7 +112,7 @@ class SourcekiteResponseHandler {
   private handleResponse(data): void {
     this.output += data;
     if (Current.config.isTracingOn) {
-      Current.log("SourcekiteResponseHandler", data);
+      Current.log("SourcekiteResponseHandler", `${data}`);
     }
     if (this.output.endsWith("}\n\n")) {
       const idx = this.output.indexOf("\n");
