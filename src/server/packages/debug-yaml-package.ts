@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as yaml from "js-yaml";
 import * as path from "path";
 import { Package, Path, Target } from "../package";
+import { compilerArgumentsForImportPath } from "../path-helpers";
 
 interface DebugYaml {
   client: {
@@ -72,20 +73,7 @@ function compilerArgumentsForCommand(command: LLCommand): string[] {
       "-Onone"
     ]) ||
     [];
-  const importPathArgs = importPaths.map(importPath => [
-    "-Xcc",
-    "-I",
-    "-Xcc",
-    importPath,
-    "-I",
-    importPath,
-    "-Xcc",
-    "-F",
-    "-Xcc",
-    importPath,
-    "-F",
-    importPath
-  ]);
+  const importPathArgs = importPaths.map(compilerArgumentsForImportPath);
   return otherArgs.concat(moduleNameArgs, ...importPathArgs);
 }
 

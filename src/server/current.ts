@@ -23,13 +23,18 @@ export interface Current {
 import * as childProcess from "child_process";
 
 async function spawn(cmd: string) {
+  let buffer = "";
   return new Promise<string>((resolve, reject) => {
     const sp = childProcess.spawn(Current.config.shellPath, ["-c", cmd]);
     sp.stdout.on("data", data => {
-      resolve(data as string);
+      buffer += data;
     });
-    sp.on("exit", error => {
-      reject(error);
+    sp.on("exit", code => {
+      if (code === 0) {
+        resolve(buffer);
+      } else {
+        reject(code);
+      }
     });
   });
 }

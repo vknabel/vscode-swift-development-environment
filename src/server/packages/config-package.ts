@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as glob from "glob";
 import { Current } from "../current";
 import { Package } from "../package";
+import { expandingSourceGlob } from "../path-helpers";
 
 export const configPackage: Package = async fromPath => {
   const targets = Current.config.targets
@@ -15,7 +15,6 @@ export const configPackage: Package = async fromPath => {
       const targetPath = path.normalize(
         path.resolve(fromPath, configTarget.path)
       );
-      console.log("targetPath", targetPath);
       const expandedSources = (configTarget.sources || ["**/*.swift"]).map(
         expandingSourceGlob(fromPath, targetPath)
       );
@@ -28,24 +27,4 @@ export const configPackage: Package = async fromPath => {
       };
     });
   return await Promise.all(targets);
-};
-
-const expandingSourceGlob = (fromPath: string, targetPath: string) => (
-  sourceGlob: string
-) => {
-  return new Promise<string[]>((resolve, reject) => {
-    const options: glob.IOptions = {
-      cwd: targetPath,
-      root: fromPath
-    };
-    glob(sourceGlob, options, (error, matches) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(
-          matches.map(match => path.normalize(path.resolve(targetPath, match)))
-        );
-      }
-    });
-  });
 };
