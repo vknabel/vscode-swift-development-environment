@@ -120,7 +120,38 @@ There aren't too much documents about the development of this project. If you ha
 
 ### How do I get autocompletion for UIKit?
 
-Just add `"sde.sourcekit.compilerOptions": ["-target", "arm64-apple-ios11.0"]` to your workspace settings in Visual Studio Code and restart it.
+You can add new autocomplation targets through your configuration.
+
+```json
+{
+  "swift.targets": [
+    // iOS
+    {
+      "name": "YourApp",
+      "path": "YourApp/YourApp",
+      "sources": ["**/*.swift"],
+      "compilerArguments": [
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk",
+        "-target",
+        "arm64-apple-ios11.0"
+      ]
+    },
+    // WatchOS
+    {
+      "name": "YourApp",
+      "path": "YourApp/YourWatchExtension",
+      "sources": ["**/*.swift"],
+      "compilerArguments": [
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk",
+        "-target",
+        "armv7k-apple-watchos4.0"
+      ]
+    }
+  ]
+}
+```
 
 ### Other questions?
 

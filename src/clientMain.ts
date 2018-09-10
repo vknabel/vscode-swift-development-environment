@@ -87,7 +87,10 @@ export function activate(context: ExtensionContext) {
     synchronize: {
       configurationSection: ["swift", "editor", "[swift]"],
       // Notify the server about file changes to '.clientrc files contain in the workspace
-      fileEvents: workspace.createFileSystemWatcher("**/*.swift")
+      fileEvents: [
+        workspace.createFileSystemWatcher("**/*.swift"),
+        workspace.createFileSystemWatcher(".build/*.yaml")
+      ]
     },
     initializationOptions: {
       isLSPServerTracingOn: isLSPServerTracingOn,

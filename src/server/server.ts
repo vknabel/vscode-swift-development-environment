@@ -24,6 +24,9 @@ import * as fs from "fs";
 import * as sourcekitProtocol from "./sourcekites";
 import * as childProcess from "child_process";
 import { parseDocumentation } from "./sourcekit-xml";
+import { Target } from "./package";
+import { availablePackages } from "./packages/available-packages";
+import { Current } from "./current";
 export const spawn = childProcess.spawn;
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
@@ -39,112 +42,43 @@ let documents: TextDocuments = new TextDocuments();
 // for open, change and close text document events
 documents.listen(connection);
 
-let allModulePaths: Map<string | null, string>;
-let allModuleSources: Map<string | null, Set<string>>;
-export function initializeModuleMeta() {
-  trace("***initializeModuleMeta***");
-  allModulePaths = new Map([[null, workspaceRoot]]);
-  allModuleSources = new Map([[null, new Set()]]);
-  const shPath = getShellExecPath();
-  trace("***getShellExecPath: ", shPath);
-  const sp = spawn(shPath, [
-    "-c",
-    `cd ${workspaceRoot} && ${swiftDiverBinPath} package describe --type json`
-  ]);
-  sp.stdout.on("data", data => {
-    if (isTracingOn) {
-      trace("***swift package describe stdout*** ", "" + data);
-    }
-    //TODO more here
-    const pkgDesc = JSON.parse(data as string);
-    for (const m of <Object[]>pkgDesc["modules"] || pkgDesc["targets"]) {
-      const mn = m["name"];
-      const mp = m["path"];
-      const ss = <string[]>m["sources"];
-      const set = new Set();
-      ss.forEach(f => set.add(path.join(mp, f)));
-      allModuleSources.set(mn, set);
-      allModulePaths.set(mn, mp);
-    }
-  });
-  sp.stderr.on("data", data => {
-    trace("***swift package describe stderr*** ", "" + data);
-    const globalSources = allModuleSources.get(null);
-    gatherAllSwiftFilesInPath(workspaceRoot).forEach(
-      globalSources.add.bind(globalSources)
-    );
-  });
-
-  sp.on("error", function(err) {
-    trace("***swift package describe error*** ", (<Error>err).message);
-    if ((<Error>err).message.indexOf("ENOENT") > 0) {
-      const msg =
-        "The '" +
-        swiftDiverBinPath +
-        "' command is not available." +
-        " Please check your swift executable user setting and ensure it is installed.";
-      trace("***swift executable not found***", msg);
-    }
-    throw err; //FIXME more friendly prompt
-  });
+let targets: Target[] | null;
+export async function initializeModuleMeta() {
+  const loadingTargets = Current.config.workspacePaths.map(availablePackages);
+  const loadedTargets = await Promise.all(loadingTargets);
+  targets = [].concat(...loadedTargets);
 }
 
-function gatherAllSwiftFilesInPath(root: string): string[] {
-  const result = new Array<string>();
-  try {
-    const dir = fs
-      .readdirSync(root)
-      .filter(sub => !sub.startsWith(".") && sub !== "Carthage");
-    for (const sub of dir) {
-      if (path.extname(sub) === ".swift") {
-        result.push(path.join(root, sub));
-      } else {
-        result.push(...gatherAllSwiftFilesInPath(path.join(root, sub)));
-      }
+export function targetForSource(srcPath: string): Target {
+  return (
+    (targets &&
+      targets.find(target => target.sources.has(path.normalize(srcPath)))) || {
+      name: path.basename(srcPath),
+      path: srcPath,
+      sources: new Set([srcPath]),
+      compilerArguments: []
     }
-    return result;
-  } catch (error) {
-    return result;
-  }
-}
-
-export function getAllSourcePaths(srcPath: string): string[] {
-  const sp = path.dirname(srcPath);
-  for (let [moduleName, modulePath] of allModulePaths) {
-    if (
-      moduleName != null &&
-      path.normalize(sp).includes(path.normalize(modulePath))
-    ) {
-      let ss = allModuleSources.get(moduleName);
-      // trace("**getAllDocumentPaths** ", Array.from(ss).join(","))
-      return Array.from(ss);
-    }
-  }
-  // when not found: interpret all global files
-  const globalSources = allModuleSources.get(null);
-  if (globalSources.has(srcPath) === false) {
-    globalSources.add(srcPath);
-  }
-  return Array.from(allModuleSources.get(null));
+  );
 }
 
 // After the server has started the client sends an initilize request. The server receives
-// in the passed params the rootPath of the workspace plus the client capabilites.
-export let workspaceRoot: string;
-export let isTracingOn: boolean;
+// in the passed params the root paths of the workspaces plus the client capabilites.
 connection.onInitialize(
   (params: InitializeParams, cancellationToken): InitializeResult => {
-    isTracingOn = params.initializationOptions.isLSPServerTracingOn;
+    Current.config.isTracingOn =
+      params.initializationOptions.isLSPServerTracingOn;
+    Current.config.workspacePaths = params.workspaceFolders.map(({ uri }) =>
+      uri.replace("file://", "")
+    );
     skProtocolPath = params.initializationOptions.skProtocolProcess;
     skProtocolProcessAsShellCmd =
       params.initializationOptions.skProtocolProcessAsShellCmd;
     skCompilerOptions = params.initializationOptions.skCompilerOptions;
-    trace(
+    Current.log(
       "-->onInitialize ",
-      `isTracingOn=[${isTracingOn}],
+      `isTracingOn=[${Current.config.isTracingOn}],
 	skProtocolProcess=[${skProtocolPath}],skProtocolProcessAsShellCmd=[${skProtocolProcessAsShellCmd}]`
     );
-    workspaceRoot = params.rootPath;
     return {
       capabilities: {
         // Tell the client that the server works in FULL text document sync mode
@@ -183,8 +117,6 @@ interface Settings {
 }
 
 //external
-export let sdeSettings: any;
-export let swiftDiverBinPath: string = null;
 export let maxBytesAllowedForCodeCompletionResponse: number = 0;
 export let editorSettings: Settings["editor"] = {};
 //internal
@@ -192,27 +124,28 @@ export let skProtocolPath = null;
 export let skProtocolProcessAsShellCmd = false;
 export let skCompilerOptions: string[] = [];
 let maxNumProblems = null;
-let shellPath = null;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration(change => {
-  trace("-->onDidChangeConfiguration");
+  Current.log("-->onDidChangeConfiguration");
   const settings = <Settings>change.settings;
-  sdeSettings = settings.swift;
+  const sdeSettings = settings.swift;
   editorSettings = { ...settings.editor, ...settings["[swift]"] };
 
   //FIXME does LS client support on-the-fly change?
   maxNumProblems = sdeSettings.diagnosis.max_num_problems;
-  swiftDiverBinPath = sdeSettings.path.swift_driver_bin;
-  shellPath = sdeSettings.path.shell;
+  Current.config.sourcekitePath = sdeSettings.path.sourcekite;
+  Current.config.swiftPath = sdeSettings.path.swift_driver_bin;
+  Current.config.shellPath = sdeSettings.path.shell || "/bin/bash";
+  Current.config.targets = sdeSettings.targets || [];
 
-  trace(`-->onDidChangeConfiguration tracing:
-	    swiftDiverBinPath=[${swiftDiverBinPath}],
-		shellPath=[${shellPath}]`);
+  Current.log(`-->onDidChangeConfiguration tracing:
+	    swiftDiverBinPath=[${Current.config.swiftPath}],
+		shellPath=[${Current.config.shellPath}]`);
 
   //FIXME reconfigure when configs haved
   sourcekitProtocol.initializeSourcekite();
-  if (!allModuleSources) {
+  if (!targets) {
     //FIXME oneshot?
     initializeModuleMeta();
   }
@@ -248,30 +181,21 @@ function validateTextDocument(textDocument: TextDocument): void {
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
   validateTextDocument(change.document);
-  trace("---onDidChangeContent");
+  Current.log("---onDidChangeContent");
 });
 
 connection.onDidChangeWatchedFiles(watched => {
   // trace('---','onDidChangeWatchedFiles');
   watched.changes.forEach(e => {
     let file: string;
-    function targetEntryForFile(filePath: string): [string | null, string] {
-      return (
-        Array.from(allModulePaths.entries()).find(([targetName]) =>
-          file.startsWith(targetName)
-        ) || [null, allModulePaths.get(null)]
-      );
-    }
     switch (e.type) {
       case FileChangeType.Created:
         file = fromUriString(e.uri);
-        const [targetNameToAdd] = targetEntryForFile(file);
-        allModuleSources.get(targetNameToAdd).add(file);
+        targetForSource(file).sources.add(file);
         break;
       case FileChangeType.Deleted:
         file = fromUriString(e.uri);
-        const [targetNameToDelete] = targetEntryForFile(file);
-        allModuleSources.get(targetNameToDelete).delete(file);
+        targetForSource(file).sources.delete(file);
         break;
       default:
       //do nothing
@@ -619,55 +543,7 @@ function decode(str) {
 
 //FIX issue#15
 export function getShellExecPath() {
-  return fs.existsSync(shellPath) ? shellPath : "/usr/bin/sh";
-}
-/**
- * NOTE:
- * now the SDE only support the convention based build
- *
- * TODO: to use build yaml?
- */
-let argsImportPaths: string[] = null;
-export function loadArgsImportPaths(): string[] {
-  if (!argsImportPaths) {
-    argsImportPaths = [];
-    argsImportPaths.push("-I");
-    argsImportPaths.push(path.join(workspaceRoot, ".build", "debug"));
-    //FIXME system paths can not be available automatically?
-    // rt += " -I"+"/usr/lib/swift/linux/x86_64"
-    argsImportPaths.push("-sdk");
-    argsImportPaths.push(
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
-    );
-    argsImportPaths.push("-sdk");
-    argsImportPaths.push(
-      "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
-    );
-    argsImportPaths.push("-sdk");
-    argsImportPaths.push(
-      "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk"
-    );
-    argsImportPaths.push("-sdk");
-    argsImportPaths.push(
-      "/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS.sdk"
-    );
-    argsImportPaths.push("-I");
-    argsImportPaths.push("/System/Library/Frameworks/");
-    argsImportPaths.push("-I");
-    argsImportPaths.push("/usr/lib/swift/pm/");
-    argsImportPaths.push(...skCompilerOptions);
-    return argsImportPaths;
-  } else {
-    return argsImportPaths;
-  }
-}
-
-export function trace(prefix: string, msg?: string) {
-  if (isTracingOn) {
-    if (msg) {
-      connection.console.log(prefix + msg);
-    } else {
-      connection.console.log(prefix);
-    }
-  }
+  return fs.existsSync(Current.config.shellPath)
+    ? Current.config.shellPath
+    : "/usr/bin/sh";
 }
