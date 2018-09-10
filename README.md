@@ -123,9 +123,9 @@ There aren't too much documents about the development of this project. If you ha
 You can add new autocomplation targets through your configuration.
 
 ```json
+// .vscode/settings.json example for iOS and WatchOS
 {
   "swift.targets": [
-    // iOS
     {
       "name": "YourApp",
       "path": "YourApp/YourApp",
@@ -137,9 +137,8 @@ You can add new autocomplation targets through your configuration.
         "arm64-apple-ios11.0"
       ]
     },
-    // WatchOS
     {
-      "name": "YourApp",
+      "name": "YourWatchApp",
       "path": "YourApp/YourWatchExtension",
       "sources": ["**/*.swift"],
       "compilerArguments": [
