@@ -99,9 +99,7 @@ connection.onInitialize(
             "(",
             "#" //' ', '<', //TODO
           ]
-        },
-        documentFormattingProvider: true,
-        documentRangeFormattingProvider: true
+        }
       }
     };
   }
@@ -462,36 +460,6 @@ connection.onDefinition(
         return err;
       }
     );
-  }
-);
-
-connection.onDocumentFormatting(
-  ({ textDocument, options }): Promise<TextEdit[]> => {
-    const document: TextDocument = documents.get(textDocument.uri);
-    const srcPath = fromDocumentUri(document);
-    const srcText = document.getText(); //NOTE here needs on-the-fly buffer
-    return sourcekitProtocol.editorFormatText(
-      document,
-      srcText,
-      srcPath,
-      1,
-      document.lineCount
-    );
-  }
-);
-
-connection.onDocumentRangeFormatting(
-  ({ textDocument, options, range }): Promise<TextEdit[]> => {
-    const document: TextDocument = documents.get(textDocument.uri);
-    const srcPath = fromDocumentUri(document);
-    const srcText = document.getText(); //NOTE here needs on-the-fly buffer
-    return sourcekitProtocol.editorFormatText(
-      document,
-      srcText,
-      srcPath,
-      range.start.line + 1,
-      range.end.line + 1
-    ); //NOTE format req is 1-based
   }
 );
 

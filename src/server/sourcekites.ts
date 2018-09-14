@@ -2,11 +2,8 @@
 
 import * as server from "./server";
 
-import { TextEdit, TextDocument, Position } from "vscode-languageserver";
-
 import * as yaml from "js-yaml";
 import { ChildProcess } from "child_process";
-import { editorSettings } from "./server";
 import { Current } from "./current";
 
 let skProtocolProcess: ChildProcess | null = null;
@@ -159,12 +156,7 @@ class SourcekiteResponseHandler {
 
 let reqCount = 0; //FIXME
 
-type RequestType =
-  | "codecomplete"
-  | "cursorinfo"
-  | "demangle"
-  | "editor.open"
-  | "editor.formattext";
+type RequestType = "codecomplete" | "cursorinfo" | "demangle" | "editor.open";
 
 function pluck<T, K extends keyof T>(prop: K): (ofTarget: T) => T[K] {
   return target => target[prop];
@@ -297,145 +289,4 @@ export function demangle(...demangledNames: string[]): Promise<any> {
 
 `;
   return typedResponse<any>(request, "demangle").then(pluck("key.results"));
-}
-
-//== editorFormatText
-export function editorFormatText(
-  document: TextDocument,
-  srcText: string,
-  srcPath: string,
-  lineStart: number,
-  lineEnd: number
-): Promise<TextEdit[]> {
-  return new Promise<TextEdit[]>((resolve, reject) => {
-    let tes: TextEdit[] = [];
-    editorOpen(srcPath, srcText, false, false, true)
-      .then(v => {
-        // discard v
-        let p = requestEditorFormatText({
-          file: srcPath,
-          line: lineStart,
-          document
-        });
-
-        //TODO async-await
-        function nextp(fts: FormatTextState) {
-          tes.push(fts.textEdit);
-          if (fts.line != lineEnd) {
-            let sPos: Position = { line: fts.line, character: 0 };
-            let ePos: Position = document.positionAt(
-              document.offsetAt({ line: fts.line + 1, character: 0 }) - 1
-            );
-            requestEditorFormatText({
-              file: srcPath,
-              line: fts.line + 1,
-              document
-            })
-              .then(nextp)
-              .catch(err => {
-                reject(err);
-              });
-          } else {
-            resolve(tes);
-          }
-        }
-
-        p.then(nextp).catch(err => {
-          reject(err);
-        });
-      })
-      .catch(err => {
-        reject(err);
-      });
-  });
-}
-
-//== editorOpen
-function editorOpen(
-  keyName: string,
-  keySourcetext: string,
-  keyEnableSyntaxMap: boolean,
-  keyEnableSubStructure: boolean,
-  keySyntacticOnly: boolean
-): Promise<string> {
-  keySourcetext = JSON.stringify(keySourcetext);
-  let request = `{
-  key.request: source.request.editor.open,
-  key.name: "${keyName}",
-  key.enablesyntaxmap: ${booleanToInt(keyEnableSyntaxMap)},
-  key.enablesubstructure: ${booleanToInt(keyEnableSubStructure)},
-  key.syntactic_only: ${booleanToInt(keySyntacticOnly)},
-  key.sourcetext: ${keySourcetext},
-  key.sourcetext: ${keySourcetext}
-}
-
-`;
-  return typedResponse(request, "editor.open");
-}
-
-interface FormatTextState {
-  line: number;
-  textEdit: TextEdit;
-}
-
-interface SkFormatTextResponse {
-  "key.line": number;
-  "key.length": number;
-  "key.sourcetext": string;
-}
-
-function requestEditorFormatText(options: {
-  file: string;
-  line: number;
-  document: TextDocument;
-}): Promise<FormatTextState> {
-  const indentationOptions = !editorSettings.tabSize
-    ? ""
-    : `key.editor.format.options: {
-            key.editor.format.indentwidth: ${editorSettings.tabSize},
-            key.editor.format.tabwidth: ${editorSettings.tabSize},
-            key.editor.format.usetabs: 0
-          }`;
-  let request = `{
-  key.request: source.request.editor.formattext,
-  key.name: "${options.file}",
-  key.line: ${options.line},
-  key.length: 1,
-  ${indentationOptions}
-}
-
-`;
-  let firstStartPos: Position = { line: options.line - 1, character: 0 };
-  let firstEndPos: Position =
-    options.line != options.document.lineCount
-      ? options.document.positionAt(
-          options.document.offsetAt({ line: options.line, character: 0 }) - 1
-        )
-      : options.document.positionAt(
-          options.document.offsetAt({
-            line: options.document.lineCount,
-            character: 0
-          })
-        );
-  const extraState = {
-    keyLine: options.line,
-    lineRange: { start: firstStartPos, end: firstEndPos } //NOTE format req is 1-based
-  };
-  return typedResponse(request, "editor.formattext").then(
-    (resp: SkFormatTextResponse) => {
-      const keyLine = extraState.keyLine;
-      const lineRange = extraState.lineRange;
-      return {
-        line: keyLine,
-        textEdit: {
-          range: lineRange,
-          newText: resp["key.sourcetext"]
-        }
-      };
-    }
-  );
-}
-
-function booleanToInt(v: boolean): Number {
-  return v ? 1 : 0;
 }

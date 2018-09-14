@@ -3,6 +3,7 @@
 ## Next Release
 
 - Resolve `~` to the home dir #30
+- Remove code formatter
 
 ## 2.5.0
 
