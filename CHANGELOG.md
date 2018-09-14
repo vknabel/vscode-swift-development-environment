@@ -1,5 +1,9 @@
 # Changelog
 
+## Next Release
+
+- Resolve `~` to the home dir #30
+
 ## 2.5.0
 
 - Autocompletion for SPM dependencies #27 (thanks to [@yeswolf](https://github.com/yeswolf))

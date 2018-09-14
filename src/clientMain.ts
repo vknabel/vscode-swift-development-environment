@@ -22,6 +22,7 @@ import {
   TransportKind
 } from "vscode-languageclient";
 import { SwiftConfigurationProvider } from "./SwiftConfigurationProvider";
+import { absolutePath } from "./AbsolutePath";
 
 let swiftBinPath: string | null = null;
 let swiftBuildParams: string[] = ["build"];
@@ -222,19 +223,19 @@ export function dumpInConsole(msg: string) {
 // }
 
 function checkToolsAvailability() {
-  swiftBinPath = <string>(
+  swiftBinPath = absolutePath(
     workspace.getConfiguration().get("swift.path.swift_driver_bin")
   );
   swiftBuildParams = <string[]>(
     workspace.getConfiguration().get("sde.swiftBuildingParams")
   ) || ["build"];
-  const sourcekitePath = <string>(
+  const sourcekitePath = absolutePath(
     workspace.getConfiguration().get("swift.path.sourcekite")
   );
-  const sourcekitePathEnableShCmd = <string>(
-    workspace.getConfiguration().get("swift.path.sourcekiteDockerMode")
-  );
-  const shellPath = <string>(
+  const sourcekitePathEnableShCmd = workspace
+    .getConfiguration()
+    .get<string>("swift.path.sourcekiteDockerMode");
+  const shellPath = absolutePath(
     workspace.getConfiguration().get("swift.path.shell")
   );
   // const useBuiltInBin = <boolean>workspace.getConfiguration().get('swift.sourcekit.use_built_in_bin')
