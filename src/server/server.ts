@@ -402,26 +402,14 @@ async function extractHoverHelp(cursorInfo: Object): Promise<MarkedString[]> {
 
   const full_as_xml = cursorInfo["key.doc.full_as_xml"];
   const annotated_decl = cursorInfo["key.annotated_decl"];
-  const moduleName = cursorInfo["key.modulename"];
-  const containerTypeUSR = cursorInfo["key.containertypeusr"];
-  let containerType = null;
-  if (containerTypeUSR) {
-    const res: Array<Object> = await sourcekitProtocol.demangle(
-      containerTypeUSR
-    );
-    containerType = res ? res.map(t => t["key.name"]).join(",") : null;
-  }
-  const t = { language: "markdown", value: keyName };
   const snippet = annotated_decl
-    ? "**Declaration:**\n```swift\n" +
+    ? "```swift\n" +
       decode(
         stripeOutTags(extractText("Declaration", full_as_xml || annotated_decl))
       ) +
-      "\n```\n" +
-      (containerType ? `**Declared In**:  ${containerType}\n\n` : "") +
-      (moduleName ? `**Module**:  ${moduleName}` : "")
+      "\n```\n"
     : keyName;
-  return [snippet, t, ...parseDocumentation(full_as_xml)]; //FIXME clickable keyTypename
+  return [snippet, ...parseDocumentation(full_as_xml)]; //FIXME clickable keyTypename
 }
 
 connection.onDefinition(

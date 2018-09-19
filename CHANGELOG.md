@@ -3,6 +3,7 @@
 ## Next Release
 
 - Resolve `~` to the home dir #30
+- Removed unuseful data from hover docs
 - Remove code formatter
 
 ## 2.5.0
