@@ -1,5 +1,10 @@
 # Changelog
 
+## Next Release
+
+- Installation instructions had wrong argument order for `ln -s`
+- Added note about installing `libcurl4-openssl-dev`
+
 ## 2.5.0
 
 - Autocompletion for SPM dependencies #27 (thanks to [@yeswolf](https://github.com/yeswolf))
