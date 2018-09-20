@@ -2,8 +2,8 @@
 
 ## Next Release
 
-- Installation instructions had wrong argument order for `ln -s`
-- Added note about installing `libcurl4-openssl-dev`
+- Installation instructions had wrong argument order for `ln -s` (thanks to [@mijo-gracanin](https://github.com/mijo-gracanin))
+- Added note about installing `libcurl4-openssl-dev` (thanks to [@mijo-gracanin](https://github.com/mijo-gracanin))
 
 ## 2.5.0
 

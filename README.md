@@ -109,6 +109,7 @@ Relevant files will be compiled using the pre-launch-tasks.
 - Valentin Knabel, [@vknabel](https://github.com/vknabel), [twitter](https://twitter.com/vknabel), _maintainer_
 - Jin Mingjian, [@JinMingjian](https://github.com/JinMingjian), [twitter](https://twitter.com/JinMingjian), _author_
 - Felix Fischer, [@felix91gr](https://github.com/felix91gr), [twitter](https://twitter.com/FelixFischer91)
+- Mijo Gračanin, [@mijo-gracanin](https://github.com/mijo-gracanin)
 
 ## FAQ
 
