@@ -32,7 +32,7 @@
     "lldb",
     "development"
   ],
-  "preview": true,
+  "preview": false,
   "activationEvents": [
     "onLanguage:swift",
     "onCommand:sde.commands.buildPackage"
