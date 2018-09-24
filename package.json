@@ -1,14 +1,14 @@
 {
   "name": "vscode-swift-development-environment",
   "displayName": "Maintained Swift Development Environment",
-  "description": "New home of Swift Development Environment for VS Code ",
+  "description": "New home of Swift Development Environment for VS Code",
   "author": {
     "name": "Valentin Knabel",
     "email": "dev@vknabel.com",
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {

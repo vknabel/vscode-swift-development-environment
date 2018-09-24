@@ -1,6 +1,6 @@
 # Changelog
 
-## Next Release
+## 2.5.1
 
 - Resolve `~` to the home dir #30
 - Removed unuseful data from hover docs
