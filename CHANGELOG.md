@@ -4,7 +4,7 @@
 
 - Resolve `~` to the home dir #30
 - Removed unuseful data from hover docs
-- Remove code formatter
+- Remove code formatter, use [vknabel/vscode-swiftformat](https://github.com/vknabel/vscode-swiftformat) instead
 - Installation instructions had wrong argument order for `ln -s` (thanks to [@mijo-gracanin](https://github.com/mijo-gracanin))
 - Added note about installing `libcurl4-openssl-dev` (thanks to [@mijo-gracanin](https://github.com/mijo-gracanin))
 
