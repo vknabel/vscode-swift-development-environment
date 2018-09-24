@@ -5,6 +5,8 @@
 - Resolve `~` to the home dir #30
 - Removed unuseful data from hover docs
 - Remove code formatter
+- Installation instructions had wrong argument order for `ln -s` (thanks to [@mijo-gracanin](https://github.com/mijo-gracanin))
+- Added note about installing `libcurl4-openssl-dev` (thanks to [@mijo-gracanin](https://github.com/mijo-gracanin))
 
 ## 2.5.0
 

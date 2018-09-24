@@ -18,8 +18,10 @@
    $ cd sourcekite
 
    # For Linux
+   # Ensure you have libcurl4-openssl-dev installed (not pre-installed)
+   # $ apt-get update && apt-get install libcurl4-openssl-dev
    # Ensure LD_LIBRARY_PATH contains /your/swift/usr/lib
-   # And have sudo ln -s /usr/lib/sourcekitdInProc /your/swift/usr/lib/libsourcekitdInProc.so
+   # And have $ sudo ln -s /your/swift/usr/lib/libsourcekitdInProc.so /usr/lib/sourcekitdInProc
    $ swift build -Xlinker -l:sourcekitdInProc -c release
 
    # For macOS (when using swiftenv or multiple Toolchains)
@@ -107,6 +109,7 @@ Relevant files will be compiled using the pre-launch-tasks.
 - Valentin Knabel, [@vknabel](https://github.com/vknabel), [twitter](https://twitter.com/vknabel), _maintainer_
 - Jin Mingjian, [@JinMingjian](https://github.com/JinMingjian), [twitter](https://twitter.com/JinMingjian), _author_
 - Felix Fischer, [@felix91gr](https://github.com/felix91gr), [twitter](https://twitter.com/FelixFischer91)
+- Mijo Gračanin, [@mijo-gracanin](https://github.com/mijo-gracanin)
 
 ## FAQ
 
