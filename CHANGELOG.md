@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.2
+
+- Warnings indicated a build failure
+
 ## 2.5.1
 
 - Resolve `~` to the home dir #30

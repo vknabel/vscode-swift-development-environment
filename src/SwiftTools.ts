@@ -17,8 +17,8 @@ export function buildPackage(
   pkgPath: string,
   params: string[]
 ) {
-  stdout = null;
-  stderr = null;
+  stdout = "";
+  stderr = "";
   error = null;
   const sb = cp.spawn(swiftBinPath, params, { cwd: pkgPath });
   sb.stdout.on("data", data => {
@@ -45,9 +45,10 @@ export function buildPackage(
     trace(`***swift build command exited*** code: ${code}, signal: ${signal}`);
     dumpInConsole("\n");
     diagnosticCollection.clear();
-    if (stderr && stdout) {
+    if (stderr) {
       dumpDiagnostics();
-    } else if (stderr) {
+    }
+    if (code != 0) {
       makeBuildStatusFailed();
     } else {
       makeBuildStatusSuccessful();
@@ -123,10 +124,6 @@ function dumpDiagnostics() {
   diagnosticMap.forEach((diags, file) => {
     diagnosticCollection.set(Uri.parse(file), diags);
   });
-
-  // trace(stderr)
-  // trace("build failed")
-  makeBuildStatusFailed();
 }
 
 function toVSCodeSeverity(sev: string) {
