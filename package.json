@@ -59,7 +59,7 @@
       "properties": {
         "swift.languageServerPath": {
           "type": "string",
-          "default": "/usr/local/bin/LanguageServer",
+          "default": "/usr/local/bin/langserver-swift",
           "description": "The fully qualified path to the Swift Language Server executable."
         },
         "swift.path.sourcekite": {

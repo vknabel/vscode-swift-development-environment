@@ -35,6 +35,12 @@
 
 If you experience any problems during installation, file an issue or write me an [email](mailto:dev@vknabel.com). All kind of feedback helps especially when trying to automate this.
 
+## Alternative Language Server
+
+SDE allows you to use an alternative Language Server like [RLovelett/langserver-swift](https://github.com/RLovelett/langserver-swift) or Apple's [offically announced LSP](https://forums.swift.org/t/new-lsp-language-service-supporting-swift-and-c-family-languages-for-any-editor-and-platform/17024).
+
+If you prefer using an alternative language server, set set `sde.languageServerMode` to `langserver` and let `swift.languageServerPath` point to your installed language server.
+
 ## Debugging
 
 SDE has a built-in Swift debugger which has been deprecated. Instead use [LLDB Debugger](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb) which powers more features and is more stable.
