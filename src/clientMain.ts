@@ -19,7 +19,8 @@ import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
-  TransportKind
+  TransportKind,
+  Executable
 } from "vscode-languageclient";
 import { SwiftConfigurationProvider } from "./SwiftConfigurationProvider";
 import { absolutePath } from "./AbsolutePath";
@@ -43,6 +44,55 @@ function shouldBuildOnSave(): boolean {
   }
 }
 
+function currentServerOptions(context: ExtensionContext) {
+  function sourcekiteServerOptions() {
+    // The server is implemented in node
+    const serverModule = context.asAbsolutePath(
+      path.join("out/src/server", "server.js")
+    );
+    // The debug options for the server
+    const debugOptions = { execArgv: ["--nolazy", "--inspect=6004"] };
+
+    // If the extension is launched in debug mode then the debug server options are used
+    // Otherwise the run options are used
+    const serverOptions: ServerOptions = {
+      run: {
+        module: serverModule,
+        transport: TransportKind.ipc,
+        options: debugOptions
+      },
+      debug: {
+        module: serverModule,
+        transport: TransportKind.ipc,
+        options: debugOptions
+      }
+    };
+    return serverOptions;
+  }
+
+  function lspServerOptions() {
+    // Load the path to the language server from settings
+    const executableCommand = workspace
+      .getConfiguration("swift")
+      .get("languageServerPath", "/usr/local/bin/LanguageServer");
+
+    const run: Executable = { command: executableCommand };
+    const debug: Executable = run;
+    const serverOptions: ServerOptions = {
+      run: run,
+      debug: debug
+    };
+    return serverOptions;
+  }
+
+  const lspMode = workspace.getConfiguration("sde").get("languageServerMode");
+  if (lspMode === "langserver") {
+    return lspServerOptions();
+  } else {
+    return sourcekiteServerOptions();
+  }
+}
+
 export function activate(context: ExtensionContext) {
   if (workspace.getConfiguration().get<boolean>("sde.enable") === false) {
     return;
@@ -55,28 +105,6 @@ export function activate(context: ExtensionContext) {
       new SwiftConfigurationProvider()
     )
   );
-
-  // The server is implemented in node
-  let serverModule = context.asAbsolutePath(
-    path.join("out/src/server", "server.js")
-  );
-  // The debug options for the server
-  let debugOptions = { execArgv: ["--nolazy", "--inspect=6004"] };
-
-  // If the extension is launched in debug mode then the debug server options are used
-  // Otherwise the run options are used
-  let serverOptions: ServerOptions = {
-    run: {
-      module: serverModule,
-      transport: TransportKind.ipc,
-      options: debugOptions
-    },
-    debug: {
-      module: serverModule,
-      transport: TransportKind.ipc,
-      options: debugOptions
-    }
-  };
 
   // Options to control the language client
   let clientOptions: LanguageClientOptions = {
@@ -104,7 +132,11 @@ export function activate(context: ExtensionContext) {
   };
 
   // Create the language client and start the client.
-  const langClient = new LanguageClient("Swift", serverOptions, clientOptions);
+  const langClient = new LanguageClient(
+    "Swift",
+    currentServerOptions(context),
+    clientOptions
+  );
   let disposable = langClient.start();
   context.subscriptions.push(disposable);
   diagnosticCollection = languages.createDiagnosticCollection("swift");

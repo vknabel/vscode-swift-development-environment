@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.5.2",
+  "version": "2.6.0",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -57,6 +57,11 @@
       "type": "object",
       "title": "Swift Development Environment Configuration",
       "properties": {
+        "swift.languageServerPath": {
+          "type": "string",
+          "default": "/usr/local/bin/LanguageServer",
+          "description": "The fully qualified path to the Swift Language Server executable."
+        },
         "swift.path.sourcekite": {
           "type": "string",
           "description": "The fully path to the sourcekite(SDE's LS backend)."
@@ -127,6 +132,15 @@
           "type": "boolean",
           "default": true,
           "description": "Wether SDE shall be executed."
+        },
+        "sde.languageServerMode": {
+          "type": "string",
+          "default": "sourcekite",
+          "enum": [
+            "sourcekite",
+            "langserver"
+          ],
+          "description": "Decides which language server should be used."
         },
         "sde.enableTracing.client": {
           "type": "boolean",

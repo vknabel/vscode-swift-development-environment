@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.6.0
+
+- Add support for alternative language servers like [RLovelett/langserver-swift](https://github.com/RLovelett/langserver-swift) #21
+
+Probably Apple's recently announced language server will be supported, too. See https://forums.swift.org/t/new-lsp-language-service-supporting-swift-and-c-family-languages-for-any-editor-and-platform/17024 for more infos.
+
+If you prefer RLovelett's LangserverSwift, SDE will read your old `swift.languageServerPath`-config. In order to actually use it your need to set `sde.languageServerMode` to `langserver`.
+
 ## 2.5.2
 
 - Warnings indicated a build failure
