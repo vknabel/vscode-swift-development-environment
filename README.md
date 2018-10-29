@@ -115,11 +115,7 @@ Relevant files will be compiled using the pre-launch-tasks.
 
 ### How to contribute to this project?
 
-Any feedback helps.
-
-If you mean contributions to the **sources**, this is truely another topic. The experience of **_using_** an editor is much different than that of **_developing_** one. It might be a bit more painful than you think. But if you would like to, welcome!
-
-There aren't too much documents about the development of this project. If you have any questions or interests, don't hesitate to file an [issue](https://github.com/vknabel/swift-development-environment/issues) or write me an [email](mailto:dev@vknabel.com). I will help you and then drop more readings as time goes by. This is **_the way of "open source"_**.
+There are a lot of ways you could contribute to either this project or the Swift on VS Code itself. For more information head over to [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### How do I get autocompletion for UIKit?
 
