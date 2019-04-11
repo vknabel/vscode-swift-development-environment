@@ -7,6 +7,8 @@
 - `sde.languageServerMode` now explicitly offers `sourcekit-lsp`.
 - Updated installation instructions with a stronger emphasize on sourcekit-lsp.
 
+_More details at [SDE 2.7.0 released](https://www.vknabel.com/pages/SDE-2-7-0-released/)_
+
 ## 2.6.0
 
 - Add support for alternative language servers like [RLovelett/langserver-swift](https://github.com/RLovelett/langserver-swift) #21
