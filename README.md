@@ -10,7 +10,19 @@
 
 ## Installation
 
-1. Install the [extension](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment) itself.
+You have the choice between three different language server implementations.
+
+| `sde.languageServerMode` | Comments                                  | Swift Versions             | Install                                            |
+| ------------------------ | ----------------------------------------- | -------------------------- | -------------------------------------------------- |
+| `sourcekit-lsp`          | Apple's official one. Activley developed. | 4 and 5                    | [#Using sourcekite](#Using-sourcekite)             |
+| `sourcekite` _default_   | SDE's one. Actively maintained.           | 4, 5 and older version 3.1 | [#Using sourcekit-lsp](#Using-sourcekit-lsp)       |
+| `langserver`             | RLovelett's LSP. Not maintained.          | 4.1, macOS only            | [#Using Langserver Swift](#Using-Langserver-Swift) |
+
+sourcekit-lsp is easier to install and will be updated more frequently. On the other hand sourcekite treats standalone files, Xcode projects and SwiftPM modules differently and is more configurable. If you can't decide, you can install both and swap out the used LSP by setting `sde.languageServerMode` to `sourcekite`, `sourcekit-lsp` or `langserver`.
+
+### Using sourcekite
+
+1. sourcekite does only work with [SDE](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment). Make sure you have it installed.
 2. Install the companion project [sourcekite](https://github.com/vknabel/sourcekite).
 
    ```bash
@@ -25,21 +37,29 @@
    $ swift build -Xlinker -l:sourcekitdInProc -c release
 
    # For macOS (when using swiftenv or multiple Toolchains)
-   $ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -Xlinker -rpath -Xlinker /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib -c release
+   $ make install LIB_DIR=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib
 
    # For macOS (using Xcode's Toolchain)
-   $ swift build -Xswiftc -framework -Xswiftc sourcekitd -Xswiftc -F -Xswiftc /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -Xlinker -rpath -Xlinker /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/ -c release
+   $ make install LIB_DIR=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib
    ```
 
 3. Add the _absolute_ path to your compiled sourcekite binary `swift.path.sourcekite` to your vscode settings as `/path/to/your/sourcekite-bin/.build/release/sourcekite`.
 
 If you experience any problems during installation, file an issue or write me an [email](mailto:dev@vknabel.com). All kind of feedback helps especially when trying to automate this.
 
-## Alternative Language Server
+### Using sourcekit-lsp
 
-SDE allows you to use an alternative Language Server like [RLovelett/langserver-swift](https://github.com/RLovelett/langserver-swift) or Apple's [offically announced LSP](https://forums.swift.org/t/new-lsp-language-service-supporting-swift-and-c-family-languages-for-any-editor-and-platform/17024).
+1. Install [SDE](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment).
+2. [Install sourcekite-lsp](https://github.com/apple/sourcekit-lsp#building-sourcekit-lsp).
+3. Add the _absolute_ path to your compiled sourcekite binary `sourcekit-lsp.serverPath`, optionally to your toolchain `sourcekit-lsp.toolchainPath` and tell SDE to use sourcekit-lsp `"sde.languageServerMode": "sourcekit-lsp"`.
+
+### Using Langserver Swift
+
+Besides sourcekit-lsp and sourcekite SDE allows you to use [RLovelett/langserver-swift](https://github.com/RLovelett/langserver-swift).
 
 If you prefer using an alternative language server, set set `sde.languageServerMode` to `langserver` and let `swift.languageServerPath` point to your installed language server.
+
+Though in most cases sourcekit-lsp and sourcekite should produce better results and performance.
 
 ## Debugging
 

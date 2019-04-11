@@ -85,8 +85,35 @@ function currentServerOptions(context: ExtensionContext) {
     return serverOptions;
   }
 
+  function sourcekitLspServerOptions() {
+    // Load the path to the language server from settings
+    const executableCommand =
+      workspace
+        .getConfiguration("sourcekit-lsp")
+        .get<string>("sourcekit-lsp.serverPath") ||
+      workspace
+        .getConfiguration("swift")
+        .get("languageServerPath", "/usr/local/bin/sourcekit-lsp");
+    const toolchain = workspace
+      .getConfiguration("sourcekit-lsp")
+      .get<string>("toolchainPath");
+    const env = toolchain
+      ? { env: { ...process.env, SOURCEKIT_TOOLCHAIN_PATH: toolchain } }
+      : { env: process.env };
+
+    const run: Executable = { command: executableCommand, options: { env } };
+    const debug: Executable = run;
+    const serverOptions: ServerOptions = {
+      run: run,
+      debug: debug
+    };
+    return serverOptions;
+  }
+
   const lspMode = workspace.getConfiguration("sde").get("languageServerMode");
-  if (lspMode === "langserver") {
+  if (lspMode === "sourcekit-lsp") {
+    return sourcekitLspServerOptions();
+  } else if (lspMode === "langserver") {
     return lspServerOptions();
   } else {
     return sourcekiteServerOptions();

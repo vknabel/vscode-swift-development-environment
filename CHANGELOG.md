@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.7.0
+
+- Latest sourcekite is now compatible with Swift 5.
+- Added options for sourcekit-lsp: `sourcekit-lsp.serverPath` and `sourcekit-lsp.toolchainPath`. [#39](https://github.com/vknabel/vscode-swift-development-environment/issues/39)
+- `sde.languageServerMode` now explicitly offers `sourcekit-lsp`.
+- Updated installation instructions with a stronger emphasize on sourcekit-lsp.
+
 ## 2.6.0
 
 - Add support for alternative language servers like [RLovelett/langserver-swift](https://github.com/RLovelett/langserver-swift) #21

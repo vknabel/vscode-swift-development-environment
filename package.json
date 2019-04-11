@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -57,6 +57,14 @@
       "type": "object",
       "title": "Swift Development Environment Configuration",
       "properties": {
+        "sourcekit-lsp.serverPath": {
+          "type": "string",
+          "description": "The path of the sourcekit-lsp executable"
+        },
+        "sourcekit-lsp.toolchainPath": {
+          "type": "string",
+          "description": "The path of the swift toolchain"
+        },
         "swift.languageServerPath": {
           "type": "string",
           "default": "/usr/local/bin/langserver-swift",
@@ -138,9 +146,10 @@
           "default": "sourcekite",
           "enum": [
             "sourcekite",
-            "langserver"
+            "langserver",
+            "sourcekit-lsp"
           ],
-          "description": "Decides which language server should be used."
+          "description": "Decides which language server should be used. `sourcekite` is the default LSP for SDE, `sourcekit-lsp` is Apple's official one and `langserver` is RLovelett's Langserver."
         },
         "sde.enableTracing.client": {
           "type": "boolean",
