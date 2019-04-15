@@ -50,7 +50,7 @@ If you experience any problems during installation, file an issue or write me an
 ### Using sourcekit-lsp
 
 1. Install [SDE](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment).
-2. [Install sourcekite-lsp](https://github.com/apple/sourcekit-lsp#building-sourcekit-lsp).
+2. [Install sourcekit-lsp](https://github.com/apple/sourcekit-lsp#building-sourcekit-lsp).
 3. Add the _absolute_ path to your compiled sourcekite binary `sourcekit-lsp.serverPath`, optionally to your toolchain `sourcekit-lsp.toolchainPath` and tell SDE to use sourcekit-lsp `"sde.languageServerMode": "sourcekit-lsp"`.
 
 ### Using Langserver Swift
