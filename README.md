@@ -14,8 +14,8 @@ You have the choice between three different language server implementations.
 
 | `sde.languageServerMode` | Comments                                  | Swift Versions             | Install                                            |
 | ------------------------ | ----------------------------------------- | -------------------------- | -------------------------------------------------- |
-| `sourcekit-lsp`          | Apple's official one. Activley developed. | 4 and 5                    | [#Using sourcekite](#Using-sourcekite)             |
-| `sourcekite` _default_   | SDE's one. Actively maintained.           | 4, 5 and older version 3.1 | [#Using sourcekit-lsp](#Using-sourcekit-lsp)       |
+| `sourcekit-lsp`          | Apple's official one. Activley developed. | 4 and 5                    | [#Using sourcekit-lsp](#Using-sourcekit-lsp)          |
+| `sourcekite` _default_   | SDE's one. Actively maintained.           | 4, 5 and older version 3.1 | [#Using sourcekite](#Using-sourcekite)             |
 | `langserver`             | RLovelett's LSP. Not maintained.          | 4.1, macOS only            | [#Using Langserver Swift](#Using-Langserver-Swift) |
 
 sourcekit-lsp is easier to install and will be updated more frequently. On the other hand sourcekite treats standalone files, Xcode projects and SwiftPM modules differently and is more configurable. If you can't decide, you can install both and swap out the used LSP by setting `sde.languageServerMode` to `sourcekite`, `sourcekit-lsp` or `langserver`.
