@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.1
+
+- `sourcekit-lsp.serverPath` wasn't read correctly, fixed by [M1xA @AnyCPU](https://github.com/AnyCPU)
+
 ## 2.7.0
 
 - Latest sourcekite is now compatible with Swift 5.
