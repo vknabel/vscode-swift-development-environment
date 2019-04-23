@@ -90,7 +90,7 @@ function currentServerOptions(context: ExtensionContext) {
     const executableCommand =
       workspace
         .getConfiguration("sourcekit-lsp")
-        .get<string>("sourcekit-lsp.serverPath") ||
+        .get<string>("serverPath") ||
       workspace
         .getConfiguration("swift")
         .get("languageServerPath", "/usr/local/bin/sourcekit-lsp");
