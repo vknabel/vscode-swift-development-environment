@@ -11,6 +11,7 @@ export interface Current {
     shellPath: string;
     sourceKitCompilerOptions: string[];
     workspacePaths: string[];
+    toolchainPath: string | null;
     targets: Array<{
       name: string;
       path: string;
@@ -82,6 +83,7 @@ export let Current: Current = {
     sourcekitePath: "$(which sourcekite)",
     shellPath: "/bin/bash",
     sourceKitCompilerOptions: [],
-    targets: []
+    targets: [],
+    toolchainPath: null
   }
 };

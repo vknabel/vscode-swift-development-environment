@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.0
+
+- Now LSP-mode `sourcekite` supports `sourcekit-lsp.toolchainPath` after updating to [sourcekite@0.6.0](https://github.com/vknabel/sourcekite/releases/tag/0.6.0)
+
 ## 2.7.1
 
 - `sourcekit-lsp.serverPath` wasn't read correctly, fixed by [M1xA @AnyCPU](https://github.com/AnyCPU)

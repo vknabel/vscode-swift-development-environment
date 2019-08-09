@@ -88,9 +88,7 @@ function currentServerOptions(context: ExtensionContext) {
   function sourcekitLspServerOptions() {
     // Load the path to the language server from settings
     const executableCommand =
-      workspace
-        .getConfiguration("sourcekit-lsp")
-        .get<string>("serverPath") ||
+      workspace.getConfiguration("sourcekit-lsp").get<string>("serverPath") ||
       workspace
         .getConfiguration("swift")
         .get("languageServerPath", "/usr/local/bin/sourcekit-lsp");
@@ -154,7 +152,11 @@ export function activate(context: ExtensionContext) {
       skProtocolProcessAsShellCmd: skProtocolProcessAsShellCmd,
       skCompilerOptions: workspace
         .getConfiguration()
-        .get("sde.sourcekit.compilerOptions")
+        .get("sde.sourcekit.compilerOptions"),
+      toolchainPath:
+        workspace
+          .getConfiguration("sourcekit-lsp")
+          .get<string>("toolchainPath") || null
     }
   };
 

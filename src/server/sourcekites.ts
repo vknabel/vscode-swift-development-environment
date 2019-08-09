@@ -26,16 +26,18 @@ function restartSourcekite() {
 }
 
 function createSkProtocolProcess() {
+  const env = { TOOLCHAIN_DIR: Current.config.toolchainPath };
   if (server.skProtocolProcessAsShellCmd) {
     const volumes = Current.config.workspacePaths.map(
       path => `-v '${path}:${path}'`
     );
-    return server.spawn(server.getShellExecPath(), [
-      "-c",
-      `docker run --rm ${volumes} -i jinmingjian/docker-sourcekite`
-    ]);
+    return server.spawn(
+      server.getShellExecPath(),
+      ["-c", `docker run --rm ${volumes} -i jinmingjian/docker-sourcekite`],
+      { env }
+    );
   } else {
-    return server.spawn(server.skProtocolPath);
+    return server.spawn(server.skProtocolPath, [], { env });
   }
 }
 

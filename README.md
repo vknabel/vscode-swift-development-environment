@@ -12,11 +12,11 @@
 
 You have the choice between three different language server implementations.
 
-| `sde.languageServerMode` | Comments                                  | Swift Versions             | Install                                            |
-| ------------------------ | ----------------------------------------- | -------------------------- | -------------------------------------------------- |
-| `sourcekit-lsp`          | Apple's official one. Activley developed. | 4 and 5                    | [#Using sourcekit-lsp](#Using-sourcekit-lsp)          |
-| `sourcekite` _default_   | SDE's one. Actively maintained.           | 4, 5 and older version 3.1 | [#Using sourcekite](#Using-sourcekite)             |
-| `langserver`             | RLovelett's LSP. Not maintained.          | 4.1, macOS only            | [#Using Langserver Swift](#Using-Langserver-Swift) |
+| `sde.languageServerMode` | Comments                                  | Swift Versions                 | Install                                            |
+| ------------------------ | ----------------------------------------- | ------------------------------ | -------------------------------------------------- |
+| `sourcekit-lsp`          | Apple's official one. Activley developed. | 4 and 5                        | [#Using sourcekit-lsp](#Using-sourcekit-lsp)       |
+| `sourcekite` _default_   | SDE's one. Actively maintained.           | 5 and older versions 3.1 and 4 | [#Using sourcekite](#Using-sourcekite)             |
+| `langserver`             | RLovelett's LSP. Not maintained.          | 4.1, macOS only                | [#Using Langserver Swift](#Using-Langserver-Swift) |
 
 sourcekit-lsp is easier to install and will be updated more frequently. On the other hand sourcekite treats standalone files, Xcode projects and SwiftPM modules differently and is more configurable. If you can't decide, you can install both and swap out the used LSP by setting `sde.languageServerMode` to `sourcekite`, `sourcekit-lsp` or `langserver`.
 
@@ -34,16 +34,13 @@ sourcekit-lsp is easier to install and will be updated more frequently. On the o
    # $ apt-get update && apt-get install libcurl4-openssl-dev
    # Ensure LD_LIBRARY_PATH contains /your/swift/usr/lib
    # And have $ sudo ln -s /your/swift/usr/lib/libsourcekitdInProc.so /usr/lib/sourcekitdInProc
-   $ swift build -Xlinker -l:sourcekitdInProc -c release
+   $ make install PREFIX=/usr/local
 
-   # For macOS (when using swiftenv or multiple Toolchains)
-   $ make install LIB_DIR=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib
-
-   # For macOS (using Xcode's Toolchain)
-   $ make install LIB_DIR=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib
+   # For macOS
+   $ make install PREFIX=/usr/local
    ```
 
-3. Add the _absolute_ path to your compiled sourcekite binary `swift.path.sourcekite` to your vscode settings as `/path/to/your/sourcekite-bin/.build/release/sourcekite`.
+3. Add the _absolute_ path to your compiled sourcekite binary `swift.path.sourcekite` to your vscode settings as `/usr/local/sourcekite`.
 
 If you experience any problems during installation, file an issue or write me an [email](mailto:dev@vknabel.com). All kind of feedback helps especially when trying to automate this.
 
@@ -114,7 +111,7 @@ Relevant files will be compiled using the pre-launch-tasks.
         {
             "label": "swift-build",
             "type": "shell",
-            "command": "swift build"
+            "command": "swift build" // for TensorFlow add -Xlinker -ltensorflow
         },
         // compile your SPM tests
         {
@@ -125,8 +122,10 @@ Relevant files will be compiled using the pre-launch-tasks.
             "args": [
                 "build",
                 "--build-tests"
+                 // for TensorFlow add "-Xlinker", "-ltensorflow"
             ]
         }
+    ]
 }
 ```
 
@@ -142,6 +141,22 @@ Relevant files will be compiled using the pre-launch-tasks.
 ### How to contribute to this project?
 
 There are a lot of ways you could contribute to either this project or the Swift on VS Code itself. For more information head over to [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+### How do I get autocompletion when using TensorFlow?
+
+You can add the following configs. This will improve your autocompletion. Though currently the `TensorFlow` module will not be indexed yet.
+
+```json
+// .vscode/settings.json example for TensorFlow
+{
+  "sde.swiftBuildingParams": ["build", "-Xlinker", "-ltensorflow"],
+  "sde.languageServerMode": "sourcekite",
+  "sourcekit-lsp.toolchainPath": "/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.3.1.xctoolchain",
+  "swift.path.swift_driver_bin": "/Library/Developer/Toolchains/swift-tensorflow-RELEASE-0.3.1.xctoolchain/usr/bin/swift"
+}
+```
+
+> In case you find a way to get autocompletion for the `TensorFlow` module to work, please submit a PR or open an issue.
 
 ### How do I get autocompletion for UIKit?
 
