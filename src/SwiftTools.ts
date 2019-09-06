@@ -20,7 +20,7 @@ export function buildPackage(
   stdout = "";
   stderr = "";
   error = null;
-  const sb = cp.spawn(swiftBinPath, params, { cwd: pkgPath });
+  const sb = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
   sb.stdout.on("data", data => {
     stdout += data;
     dumpInConsole("" + data);
