@@ -20,7 +20,7 @@
     "url": "https://github.com/vknabel/vscode-swift-development-environment"
   },
   "engines": {
-    "vscode": "^1.26.0"
+    "vscode": "^1.30.0"
   },
   "categories": [
     "Programming Languages"
@@ -231,30 +231,45 @@
     "peg1": "pegjs -o out/src/debug/lldbmi/mi_output_parser.js src/debug/lldbmi/mi_output_grammar.pegjs",
     "peg2": "pegjs -o out/src/debug/lldbmi/raw_command_output_parser.js src/debug/lldbmi/raw_command_output_parser.pegjs",
     "copy-parser-dts": "cp src/debug/lldbmi/mi_output_parser.d.ts out/src/debug/lldbmi/mi_output_parser.d.ts",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "format": "prettier CHANGELOG.md README.md src/*.ts src/server/**/*.ts tsconfig.json --write"
+    "format": "prettier CHANGELOG.md README.md src/*.ts src/server/**/*.ts tsconfig.json --write",
+    "test": "jest"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.4",
     "@types/glob": "^5.0.35",
+    "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.11.1",
-    "@types/node": "^10.1.2",
+    "@types/node": "^12.7.4",
+    "@types/vscode": "1.30.0",
     "@types/xml-js": "^1.0.0",
-    "mocha": "^2.3.3",
+    "jest": "^24.9.0",
     "pegjs": "^0.10.0",
-    "prettier": "^1.14.2",
-    "typescript": "^2.0.0",
-    "vscode": "^1.1.18"
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.6.2"
   },
   "dependencies": {
     "bunyan": "^1.8.5",
     "fs-promise": "^1.0.0",
-    "glob": "^7.1.3",
+    "glob": "^7.1.4",
     "js-yaml": "^3.13.1",
     "vscode-debugadapter": "^1.25.0",
     "vscode-debugprotocol": "^1.15.0",
-    "vscode-languageclient": "^5.0.1",
-    "vscode-languageserver": "^5.0.3",
-    "xml-js": "^1.6.2"
+    "vscode-languageclient": "^5.2.1",
+    "vscode-languageserver": "^5.2.1",
+    "xml-js": "^1.6.11"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testMatch": [
+      "**/*.spec.ts"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "collectCoverage": true
   }
 }
