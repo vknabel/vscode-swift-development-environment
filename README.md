@@ -33,7 +33,7 @@ sourcekit-lsp is easier to install and will be updated more frequently. On the o
    # Ensure you have libcurl4-openssl-dev installed (not pre-installed)
    # $ apt-get update && apt-get install libcurl4-openssl-dev
    # Ensure LD_LIBRARY_PATH contains /your/swift/usr/lib
-   # And have $ sudo ln -s /your/swift/usr/lib/libsourcekitdInProc.so /usr/lib/sourcekitdInProc
+   # And have $ sudo ln -s /your/swift/usr/lib/libsourcekitdInProc.so /usr/lib/libsourcekitdInProc.so
    $ make install PREFIX=/usr/local
 
    # For macOS

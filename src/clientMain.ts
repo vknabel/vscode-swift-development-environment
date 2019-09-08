@@ -51,7 +51,10 @@ function currentServerOptions(context: ExtensionContext) {
       path.join("out/src/server", "server.js")
     );
     // The debug options for the server
-    const debugOptions = { execArgv: ["--nolazy", "--inspect=6004"] };
+    const debugOptions = {
+      execArgv: ["--nolazy", "--inspect=6004"],
+      ...process.env
+    };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -76,7 +79,10 @@ function currentServerOptions(context: ExtensionContext) {
       .getConfiguration("swift")
       .get("languageServerPath", "/usr/local/bin/LanguageServer");
 
-    const run: Executable = { command: executableCommand };
+    const run: Executable = {
+      command: executableCommand,
+      options: process.env
+    };
     const debug: Executable = run;
     const serverOptions: ServerOptions = {
       run: run,

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.1
+
+- Fixed an issue preventing autocompletion to work reliably on Linux, fixes [#54](https://github.com/vknabel/vscode-swift-development-environment/issues/54)
+- Installation instructions now correctly link `/usr/lib/libsourcekitdInProc.so`, noticed by [@kennethz3](https://github.com/kennethz3)
+- Support quoted arguments in settings, fixed by [@haifengkao](https://github.com/haifengkao)
+
 ## 2.8.0
 
 - Now LSP-mode `sourcekite` supports `sourcekit-lsp.toolchainPath` after updating to [sourcekite@0.6.0](https://github.com/vknabel/sourcekite/releases/tag/0.6.0)

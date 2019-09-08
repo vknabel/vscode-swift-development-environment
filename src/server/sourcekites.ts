@@ -26,7 +26,10 @@ function restartSourcekite() {
 }
 
 function createSkProtocolProcess() {
-  const env = { TOOLCHAIN_DIR: Current.config.toolchainPath };
+  const env = {
+    ...process.env,
+    TOOLCHAIN_DIR: Current.config.toolchainPath || process.env["TOOLCHAIN_DIR"]
+  };
   if (server.skProtocolProcessAsShellCmd) {
     const volumes = Current.config.workspacePaths.map(
       path => `-v '${path}:${path}'`
@@ -44,9 +47,7 @@ function createSkProtocolProcess() {
 function initializeSKProtocolProcess() {
   Current.log(
     "sourcekite",
-    `***sourcekite initializing with skProtocolProcess at [${
-      server.skProtocolPath
-    }]`
+    `***sourcekite initializing with skProtocolProcess at [${server.skProtocolPath}]`
   );
 
   const pathSourcekite = Current.config.sourcekitePath;
