@@ -2,7 +2,7 @@
 
 ## 2.8.2
 
-- Fixed diagnostics not being shown [vknabel/sourcekite#8](https://github.com/vknabel/sourcekite/issues/7) [#57](https://github.com/vknabel/vscode-swift-development-environment/issues/57)
+- Fixed diagnostics not being shown [#58](https://github.com/vknabel/sourcekite/issues/58) [#57](https://github.com/vknabel/vscode-swift-development-environment/issues/57)
 
 ## 2.8.1
 
