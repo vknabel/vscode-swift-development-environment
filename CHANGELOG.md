@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.2
+
+- Fixed diagnostics not being shown [vknabel/sourcekite#8](https://github.com/vknabel/sourcekite/issues/7) [#57](https://github.com/vknabel/vscode-swift-development-environment/issues/57)
+
 ## 2.8.1
 
 - Fixed an issue preventing autocompletion to work reliably on Linux, fixes [#54](https://github.com/vknabel/vscode-swift-development-environment/issues/54)

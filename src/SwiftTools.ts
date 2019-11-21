@@ -1,6 +1,12 @@
 "use strict";
 
-import { Uri, Diagnostic, DiagnosticSeverity, Range } from "vscode";
+import {
+  Uri,
+  Diagnostic,
+  DiagnosticSeverity,
+  Range,
+  window as vscodeWindow
+} from "vscode";
 import cp = require("child_process");
 import {
   trace,
@@ -10,7 +16,7 @@ import {
   makeBuildStatusSuccessful
 } from "./clientMain";
 
-let stdout: string, stderr: string, error: Error;
+let stdout: string;
 ///managed build now only support to invoke on save
 export function buildPackage(
   swiftBinPath: string,
@@ -18,15 +24,12 @@ export function buildPackage(
   params: string[]
 ) {
   stdout = "";
-  stderr = "";
-  error = null;
   const sb = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
   sb.stdout.on("data", data => {
     stdout += data;
     dumpInConsole("" + data);
   });
   sb.stderr.on("data", data => {
-    stderr += data;
     dumpInConsole("" + data);
   });
   sb.on("error", function(err: Error) {
@@ -37,17 +40,16 @@ export function buildPackage(
         swiftBinPath +
         "' command is not available." +
         " Please check your swift executable user setting and ensure it is installed.";
+      vscodeWindow.showErrorMessage(msg);
     }
-    error = err;
   });
 
   sb.on("exit", function(code, signal) {
     trace(`***swift build command exited*** code: ${code}, signal: ${signal}`);
     dumpInConsole("\n");
     diagnosticCollection.clear();
-    if (stderr) {
-      dumpDiagnostics();
-    }
+    dumpDiagnostics();
+
     if (code != 0) {
       makeBuildStatusFailed();
     } else {

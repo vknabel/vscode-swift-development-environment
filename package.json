@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -35,6 +35,7 @@
   "preview": false,
   "activationEvents": [
     "onLanguage:swift",
+    "workspaceContains:**/*swift",
     "onCommand:sde.commands.buildPackage"
   ],
   "main": "./out/src/clientMain",
@@ -203,7 +204,7 @@
     "debuggers": [
       {
         "type": "swift-debug",
-        "label": "Swift Debug",
+        "label": "Swift Debug (Deprecated)",
         "program": "./out/src/debug/debugs.js",
         "runtime": "node",
         "configurationAttributes": {
@@ -220,6 +221,12 @@
             }
           }
         }
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "swift",
+        "properties": {}
       }
     ]
   },
