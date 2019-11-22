@@ -42,7 +42,7 @@ sourcekit-lsp is easier to install and will be updated more frequently. On the o
 
 3. Add the _absolute_ path to your compiled sourcekite binary `swift.path.sourcekite` to your vscode settings as `/usr/local/sourcekite`.
 
-If you experience any problems during installation, file an issue or write me an [email](mailto:dev@vknabel.com). All kind of feedback helps especially when trying to automate this.
+If you experience any problems during installation, file an issue. All kind of feedback helps especially when trying to automate this.
 
 ### Using sourcekit-lsp
 
@@ -61,7 +61,7 @@ Though in most cases sourcekit-lsp and sourcekite should produce better results 
 ## Contributors
 
 - Valentin Knabel, [@vknabel](https://github.com/vknabel), [twitter](https://twitter.com/vknabel), _maintainer_
-- Jin Mingjian, [@JinMingjian](https://github.com/JinMingjian), [twitter](https://twitter.com/JinMingjian), _author_
+- Jin Mingjian, [@JinMingjian](https://github.com/JinMingjian), [twitter](https://twitter.com/JinMingjian), _author_, not involved anymore
 - Felix Fischer, [@felix91gr](https://github.com/felix91gr), [twitter](https://twitter.com/FelixFischer91)
 - Mijo Gračanin, [@mijo-gracanin](https://github.com/mijo-gracanin)
 
