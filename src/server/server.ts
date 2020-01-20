@@ -71,6 +71,7 @@ connection.onInitialize(
       uri.replace("file://", "")
     );
     skProtocolPath = params.initializationOptions.skProtocolProcess;
+    Current.config.toolchainPath = params.initializationOptions.toolchainPath;
     skProtocolProcessAsShellCmd =
       params.initializationOptions.skProtocolProcessAsShellCmd;
     skCompilerOptions = params.initializationOptions.skCompilerOptions;
@@ -136,7 +137,6 @@ connection.onDidChangeConfiguration(change => {
   Current.config.swiftPath = sdeSettings.path.swift_driver_bin;
   Current.config.shellPath = sdeSettings.path.shell || "/bin/bash";
   Current.config.targets = sdeSettings.targets || [];
-  Current.config.toolchainPath = sdeSettings.toolchainPath || null;
 
   Current.log(`-->onDidChangeConfiguration tracing:
 	    swiftDiverBinPath=[${Current.config.swiftPath}],
