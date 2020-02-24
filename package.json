@@ -201,28 +201,6 @@
         "language": "swift"
       }
     ],
-    "debuggers": [
-      {
-        "type": "swift-debug",
-        "label": "Swift Debug (Deprecated)",
-        "program": "./out/src/debug/debugs.js",
-        "runtime": "node",
-        "configurationAttributes": {
-          "launch": {
-            "required": [
-              "program"
-            ],
-            "properties": {
-              "program": {
-                "type": "string",
-                "description": "Absolute path to the program being debugged",
-                "default": "${workspaceRoot}/.build/debug/path-to-program-debugged"
-              }
-            }
-          }
-        }
-      }
-    ],
     "taskDefinitions": [
       {
         "type": "swift",
@@ -232,12 +210,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
-    "build": "npm run prepare-out && npm run peg1 && npm run peg2 && npm run copy-parser-dts && npm run compile",
+    "build": "npm run compile",
     "compile": "tsc -p ./",
-    "prepare-out": "mkdir -p out/src/debug/lldbmi",
-    "peg1": "pegjs -o out/src/debug/lldbmi/mi_output_parser.js src/debug/lldbmi/mi_output_grammar.pegjs",
-    "peg2": "pegjs -o out/src/debug/lldbmi/raw_command_output_parser.js src/debug/lldbmi/raw_command_output_parser.pegjs",
-    "copy-parser-dts": "cp src/debug/lldbmi/mi_output_parser.d.ts out/src/debug/lldbmi/mi_output_parser.d.ts",
     "format": "prettier CHANGELOG.md README.md src/*.ts src/server/**/*.ts tsconfig.json --write",
     "test": "jest"
   },
@@ -250,7 +224,6 @@
     "@types/vscode": "1.30.0",
     "@types/xml-js": "^1.0.0",
     "jest": "^24.9.0",
-    "pegjs": "^0.10.0",
     "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
     "typescript": "^3.6.2"
@@ -260,8 +233,6 @@
     "fs-promise": "^1.0.0",
     "glob": "^7.1.4",
     "js-yaml": "^3.13.1",
-    "vscode-debugadapter": "^1.25.0",
-    "vscode-debugprotocol": "^1.15.0",
     "vscode-languageclient": "^5.2.1",
     "vscode-languageserver": "^5.2.1",
     "xml-js": "^1.6.11"

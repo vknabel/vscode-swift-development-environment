@@ -2832,11 +2832,6 @@ path-type@^3.0.0:
   dependencies:
     pify "^3.0.0"
 
-pegjs@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/pegjs/-/pegjs-0.10.0.tgz#cf8bafae6eddff4b5a7efb185269eaaf4610ddbd"
-  integrity sha1-z4uvrm7d/0tafvsYUmnqr0YQ3b0=
-
 performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
@@ -3700,19 +3695,6 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vscode-debugadapter@^1.25.0:
-  version "1.29.0"
-  resolved "https://registry.yarnpkg.com/vscode-debugadapter/-/vscode-debugadapter-1.29.0.tgz#1761d1206b441dd65d64fee4dce6d44fe4b9ce5c"
-  integrity sha512-4lQ6C34hLyUaPEEfj1U/LjdNFr6zdQbraVXDE9TyVLpnO8W8ZleONgOVbNVc4NPV2joANG7gzov739TIVTspBw==
-  dependencies:
-    vscode-debugprotocol "1.29.0"
-    vscode-uri "1.0.1"
-
-vscode-debugprotocol@1.29.0, vscode-debugprotocol@^1.15.0:
-  version "1.29.0"
-  resolved "https://registry.yarnpkg.com/vscode-debugprotocol/-/vscode-debugprotocol-1.29.0.tgz#520030db8486f7d9e1f889ece82538efe7ec6fac"
-  integrity sha512-jrbSayWof7jyXo7VRhIcTcsjWeiPloi6vzbrucVarKvuSrZUV7Bc+ggQRSG1lzNiMmBG5AHIe/Npf6G2q4SBiw==
-
 vscode-jsonrpc@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-4.0.0.tgz#a7bf74ef3254d0a0c272fab15c82128e378b3be9"
@@ -3746,11 +3728,6 @@ vscode-languageserver@^5.2.1:
   dependencies:
     vscode-languageserver-protocol "3.14.1"
     vscode-uri "^1.0.6"
-
-vscode-uri@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-1.0.1.tgz#11a86befeac3c4aa3ec08623651a3c81a6d0bbc8"
-  integrity sha1-Eahr7+rDxKo+wIYjZRo8gabQu8g=
 
 vscode-uri@^1.0.6:
   version "1.0.8"

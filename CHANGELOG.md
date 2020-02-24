@@ -1,5 +1,11 @@
 # Changelog
 
+## Master
+
+- Drop broken debugger of SDE #22
+
+If you are curious about how to set debugging up, see [Debugging Swift in VS Code](https://www.vknabel.com/pages/Debugging-Swift-in-VS-Code/).
+
 ## 2.8.3
 
 - Fixed ignored Toolchain Path [vknabel/sourcekite#9](https://github.com/vknabel/sourcekite/issues/9)

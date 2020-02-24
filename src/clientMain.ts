@@ -22,7 +22,6 @@ import {
   TransportKind,
   Executable
 } from "vscode-languageclient";
-import { SwiftConfigurationProvider } from "./SwiftConfigurationProvider";
 import { absolutePath } from "./AbsolutePath";
 
 let swiftBinPath: string | null = null;
@@ -129,13 +128,6 @@ export function activate(context: ExtensionContext) {
     return;
   }
   initConfig();
-  //debug
-  context.subscriptions.push(
-    debug.registerDebugConfigurationProvider(
-      "swift",
-      new SwiftConfigurationProvider()
-    )
-  );
 
   // Options to control the language client
   let clientOptions: LanguageClientOptions = {
