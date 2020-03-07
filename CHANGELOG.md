@@ -1,7 +1,8 @@
 # Changelog
 
-## Master
+## 2.9.0
 
+- `sourcekit-lsp` with different toolchains failed #63
 - Drop broken debugger of SDE #22
 
 If you are curious about how to set debugging up, see [Debugging Swift in VS Code](https://www.vknabel.com/pages/Debugging-Swift-in-VS-Code/).

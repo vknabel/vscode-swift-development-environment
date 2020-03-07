@@ -100,16 +100,12 @@ function currentServerOptions(context: ExtensionContext) {
     const toolchain = workspace
       .getConfiguration("sourcekit-lsp")
       .get<string>("toolchainPath");
-    const env = toolchain
-      ? { env: { ...process.env, SOURCEKIT_TOOLCHAIN_PATH: toolchain } }
-      : { env: process.env };
+    const env: NodeJS.ProcessEnv = toolchain
+      ? { ...process.env, SOURCEKIT_TOOLCHAIN_PATH: toolchain }
+      : process.env;
 
     const run: Executable = { command: executableCommand, options: { env } };
-    const debug: Executable = run;
-    const serverOptions: ServerOptions = {
-      run: run,
-      debug: debug
-    };
+    const serverOptions: ServerOptions = run;
     return serverOptions;
   }
 
@@ -120,6 +116,20 @@ function currentServerOptions(context: ExtensionContext) {
     return lspServerOptions();
   } else {
     return sourcekiteServerOptions();
+  }
+}
+
+function currentClientOptions(
+  _context: ExtensionContext
+): Partial<LanguageClientOptions> {
+  const lspMode = workspace.getConfiguration("sde").get("languageServerMode");
+  if (lspMode === "sourcekit-lsp") {
+    return {
+      documentSelector: ["swift", "cpp", "c", "objective-c", "objective-cpp"],
+      synchronize: undefined
+    };
+  } else {
+    return {};
   }
 }
 
@@ -155,7 +165,8 @@ export function activate(context: ExtensionContext) {
         workspace
           .getConfiguration("sourcekit-lsp")
           .get<string>("toolchainPath") || null
-    }
+    },
+    ...currentClientOptions(context)
   };
 
   // Create the language client and start the client.
