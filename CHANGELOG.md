@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.1
+
+- Support iOS for sourcekit-lsp #64 by [@haifengkao](https://github.com/haifengkao)
+
 ## 2.9.0
 
 - `sourcekit-lsp` with different toolchains failed #63
