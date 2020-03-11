@@ -100,11 +100,17 @@ function currentServerOptions(context: ExtensionContext) {
     const toolchain = workspace
       .getConfiguration("sourcekit-lsp")
       .get<string>("toolchainPath");
+
+    // sourcekit-lsp takes -Xswiftc arguments like "swift build", but it doesn't need "build" argument
+    let sourceKitArgs = (<string[]>(
+      workspace.getConfiguration().get("sde.swiftBuildingParams")
+    ) || []).filter(param => param !== "build")
+
     const env: NodeJS.ProcessEnv = toolchain
       ? { ...process.env, SOURCEKIT_TOOLCHAIN_PATH: toolchain }
       : process.env;
 
-    const run: Executable = { command: executableCommand, options: { env } };
+    const run: Executable = { command: executableCommand, options: { env }, args: sourceKitArgs};
     const serverOptions: ServerOptions = run;
     return serverOptions;
   }
