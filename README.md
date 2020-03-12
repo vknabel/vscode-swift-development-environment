@@ -121,6 +121,48 @@ You can add new autocomplation targets through your configuration.
 }
 ```
 
+After Xcode 11.4, you may use its built-in support for sourcekit-lsp
+```json
+// .vscode/settings.json example for iOS
+{
+    "sde.languageservermode": "sourcekit-lsp",
+    "sourcekit-lsp.serverPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp",
+    "sourcekit-lsp.toolchainPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
+    "sde.swiftBuildingParams" : [
+        "build",
+        "-Xswiftc",
+        "-sdk",
+        "-Xswiftc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk",
+        "-Xswiftc",
+        "-target",
+        "-Xswiftc",
+        "arm64-apple-ios11.0"
+    ]
+}
+```
+
+```json
+// .vscode/settings.json example for WatchOS
+{
+    "sde.languageservermode": "sourcekit-lsp",
+    "sourcekit-lsp.serverPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp",
+    "sourcekit-lsp.toolchainPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
+    "sde.swiftBuildingParams" : [
+        "build",
+        "-Xswiftc",
+        "-sdk",
+        "-Xswiftc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk",
+        "-Xswiftc",
+        "-target",
+        "-Xswiftc",
+        "armv7k-apple-watchos4.0"
+    ]
+}
+```
+
+
 ### Other questions?
 
 If so, file an [issue](https://github.com/vknabel/swift-development-environment/issues), please :)
