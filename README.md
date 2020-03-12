@@ -91,6 +91,7 @@ You can add the following configs. This will improve your autocompletion. Though
 
 You can add new autocomplation targets through your configuration.
 
+Using sourcekite
 ```json
 // .vscode/settings.json example for iOS and WatchOS
 {
