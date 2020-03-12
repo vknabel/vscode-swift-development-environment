@@ -121,7 +121,7 @@ With sourcekite, you can add new autocompletion targets through your configurati
 }
 ```
 
-After Xcode 11.4, you may use its built-in support for sourcekit-lsp
+Since Xcode 11.4, you may use its built-in support for sourcekit-lsp
 ```json
 // .vscode/settings.json example for iOS
 {
