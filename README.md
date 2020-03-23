@@ -165,13 +165,6 @@ Since Xcode 11.4, you may use its built-in support for sourcekit-lsp
 ### Build failed! What should I do?
 Go to vscode `OUTPUT` window, then select `SPM`. The `OUTPUT` window will tell you what's wrong.
 
-### Database is locked??
-If you saw
-```
-database is locked Possibly there are two concurrent builds running in the same filesystem location
-```
-it means swift package manager tries to access frameworks built by `New Build System`. Open your Xcode's `Workspace Settings...`, select `Legacy Build System` and rebuid the framework.
-
 ### Other questions?
 
 If so, file an [issue](https://github.com/vknabel/swift-development-environment/issues), please :)
