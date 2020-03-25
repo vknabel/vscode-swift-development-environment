@@ -162,6 +162,8 @@ Since Xcode 11.4, you may use its built-in support for sourcekit-lsp
 }
 ```
 
+### Build failed! What should I do?
+Go to vscode `OUTPUT` window, then select `SPM`. The `OUTPUT` window will tell you what's wrong.
 
 ### Other questions?
 
