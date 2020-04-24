@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.10.0
+
+- Default to Xcode's sourcekit-lsp on macOS instead of sourcekite
+- README.md instruction improvements #70 by [@fxn](https://github.com/fxn).
+
 ## 2.9.1
 
 - Support iOS for sourcekit-lsp #64 by [@haifengkao](https://github.com/haifengkao)

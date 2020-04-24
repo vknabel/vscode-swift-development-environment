@@ -23,6 +23,7 @@ import {
   Executable
 } from "vscode-languageclient";
 import { absolutePath } from "./AbsolutePath";
+import { promisify } from "util";
 
 let swiftBinPath: string | null = null;
 let swiftBuildParams: string[] = ["build"];
@@ -43,7 +44,9 @@ function shouldBuildOnSave(): boolean {
   }
 }
 
-function currentServerOptions(context: ExtensionContext) {
+async function currentServerOptions(
+  context: ExtensionContext
+): Promise<ServerOptions> {
   function sourcekiteServerOptions() {
     // The server is implemented in node
     const serverModule = context.asAbsolutePath(
@@ -90,32 +93,57 @@ function currentServerOptions(context: ExtensionContext) {
     return serverOptions;
   }
 
-  function sourcekitLspServerOptions() {
-    // Load the path to the language server from settings
-    const executableCommand =
-      workspace.getConfiguration("sourcekit-lsp").get<string>("serverPath") ||
-      workspace
-        .getConfiguration("swift")
-        .get("languageServerPath", "/usr/local/bin/sourcekit-lsp");
+  async function sourcekitLspServerOptions() {
     const toolchain = workspace
       .getConfiguration("sourcekit-lsp")
       .get<string>("toolchainPath");
 
+    async function sourceKitLSPLocation() {
+      const explicit = workspace
+        .getConfiguration("sourcekit-lsp")
+        .get<string | null>("serverPath", null);
+      if (explicit) return explicit;
+
+      const sourcekitLSPPath = path.resolve(
+        toolchain ||
+          "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
+        "usr/bin/sourcekit-lsp"
+      );
+      const isPreinstalled = await promisify(fs.exists)(
+        path.resolve(toolchain, "usr/bin/sourcekit-lsp")
+      );
+      if (isPreinstalled) {
+        return sourcekitLSPPath;
+      }
+
+      return workspace
+        .getConfiguration("swift")
+        .get("languageServerPath", "/usr/local/bin/sourcekit-lsp");
+    }
+
     // sourcekit-lsp takes -Xswiftc arguments like "swift build", but it doesn't need "build" argument
-    let sourceKitArgs = (<string[]>(
-      workspace.getConfiguration().get("sde.swiftBuildingParams")
-    ) || []).filter(param => param !== "build")
+    let sourceKitArgs = (
+      <string[]>workspace.getConfiguration().get("sde.swiftBuildingParams") ||
+      []
+    ).filter(param => param !== "build");
 
     const env: NodeJS.ProcessEnv = toolchain
       ? { ...process.env, SOURCEKIT_TOOLCHAIN_PATH: toolchain }
       : process.env;
 
-    const run: Executable = { command: executableCommand, options: { env }, args: sourceKitArgs};
+    const run: Executable = {
+      command: await sourceKitLSPLocation(),
+      options: { env },
+      args: sourceKitArgs
+    };
     const serverOptions: ServerOptions = run;
     return serverOptions;
   }
 
-  const lspMode = workspace.getConfiguration("sde").get("languageServerMode");
+  const lspMode = workspace
+    .getConfiguration("sde")
+    .get("languageServerMode", "sourcekit-lsp");
+
   if (lspMode === "sourcekit-lsp") {
     return sourcekitLspServerOptions();
   } else if (lspMode === "langserver") {
@@ -139,7 +167,7 @@ function currentClientOptions(
   }
 }
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
   if (workspace.getConfiguration().get<boolean>("sde.enable") === false) {
     return;
   }
@@ -178,7 +206,7 @@ export function activate(context: ExtensionContext) {
   // Create the language client and start the client.
   const langClient = new LanguageClient(
     "Swift",
-    currentServerOptions(context),
+    await currentServerOptions(context),
     clientOptions
   );
   let disposable = langClient.start();

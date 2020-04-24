@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.9.1",
+  "version": "2.10.0",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -60,11 +60,11 @@
       "properties": {
         "sourcekit-lsp.serverPath": {
           "type": "string",
-          "description": "The path of the sourcekit-lsp executable"
+          "description": "The path of the sourcekit-lsp executable\nIn SDE: defaults to the toolchain's sourcekit-lsp."
         },
         "sourcekit-lsp.toolchainPath": {
           "type": "string",
-          "description": "The path of the swift toolchain"
+          "description": "The path of the swift toolchain.\nIn SDE: defaults to Xcode's default toolchain."
         },
         "swift.languageServerPath": {
           "type": "string",

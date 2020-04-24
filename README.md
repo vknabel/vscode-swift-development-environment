@@ -12,13 +12,21 @@
 
 You have the choice between three different language server implementations.
 
-| `sde.languageServerMode` | Comments                                  | Swift Versions                 | Install                                            |
-| ------------------------ | ----------------------------------------- | ------------------------------ | -------------------------------------------------- |
-| `sourcekit-lsp`          | Apple's official one. Activley developed. | 4 and 5                        | [#Using sourcekit-lsp](#Using-sourcekit-lsp)       |
-| `sourcekite` _default_   | SDE's one. Actively maintained.           | 5 and older versions 3.1 and 4 | [#Using sourcekite](#Using-sourcekite)             |
-| `langserver`             | RLovelett's LSP. Not maintained.          | 4.1, macOS only                | [#Using Langserver Swift](#Using-Langserver-Swift) |
+| `sde.languageServerMode`  | Comments                                  | Swift Versions                 | Install                                            |
+| ------------------------- | ----------------------------------------- | ------------------------------ | -------------------------------------------------- |
+| `sourcekit-lsp` _default_ | Apple's official one. Activley developed. | 4 and 5                        | [#Using sourcekit-lsp](#Using-sourcekit-lsp)       |
+| `sourcekite`              | SDE's one. Actively maintained.           | 5 and older versions 3.1 and 4 | [#Using sourcekite](#Using-sourcekite)             |
+| `langserver`              | RLovelett's LSP. Not maintained.          | 4.1, macOS only                | [#Using Langserver Swift](#Using-Langserver-Swift) |
 
 sourcekit-lsp is easier to install and will be updated more frequently. On the other hand sourcekite treats standalone files, Xcode projects and SwiftPM modules differently and is more configurable. If you can't decide, you can install both and swap out the used LSP by setting `sde.languageServerMode` to `sourcekite`, `sourcekit-lsp` or `langserver`.
+
+### Using sourcekit-lsp
+
+> **Note:** on macOS SDE defaults to using your Xcode's Swift and sourcekit-lsp. In that case, [SDE](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment) should work out of the box!
+
+1. Install [SDE](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment).
+2. Recent versions of Xcode ship with `sourcekit-lsp`, you can check its path running `xcrun -f sourcekit-lsp`. If not found, please [install sourcekit-lsp](https://github.com/apple/sourcekit-lsp#building-sourcekit-lsp).
+3. Set `"swift.languageServerPath": "absolute path to the sourcekit-lsp executable"` and `"sde.languageServerMode": "sourcekit-lsp"`.
 
 ### Using sourcekite
 
@@ -43,12 +51,6 @@ sourcekit-lsp is easier to install and will be updated more frequently. On the o
 3. Add the _absolute_ path to your compiled sourcekite binary `swift.path.sourcekite` to your vscode settings as `/usr/local/sourcekite`.
 
 If you experience any problems during installation, file an issue. All kind of feedback helps especially when trying to automate this.
-
-### Using sourcekit-lsp
-
-1. Install [SDE](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment).
-2. Recent versions of Xcode ship with `sourcekit-lsp`, you can check its path running `xcrun -f sourcekit-lsp`. If not found, please [install sourcekit-lsp](https://github.com/apple/sourcekit-lsp#building-sourcekit-lsp).
-3. Set `"swift.languageServerPath": "absolute path to the sourcekit-lsp executable"` and `"sde.languageServerMode": "sourcekit-lsp"`.
 
 ### Using Langserver Swift
 
@@ -122,47 +124,49 @@ With sourcekite, you can add new autocompletion targets through your configurati
 ```
 
 Since Xcode 11.4, you may use its built-in support for sourcekit-lsp
+
 ```json
 // .vscode/settings.json example for iOS
 {
-    "sde.languageservermode": "sourcekit-lsp",
-    "sourcekit-lsp.serverPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp",
-    "sourcekit-lsp.toolchainPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
-    "sde.swiftBuildingParams" : [
-        "build",
-        "-Xswiftc",
-        "-sdk",
-        "-Xswiftc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk",
-        "-Xswiftc",
-        "-target",
-        "-Xswiftc",
-        "arm64-apple-ios11.0"
-    ]
+  "sde.languageservermode": "sourcekit-lsp",
+  "sourcekit-lsp.serverPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp",
+  "sourcekit-lsp.toolchainPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
+  "sde.swiftBuildingParams": [
+    "build",
+    "-Xswiftc",
+    "-sdk",
+    "-Xswiftc",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk",
+    "-Xswiftc",
+    "-target",
+    "-Xswiftc",
+    "arm64-apple-ios11.0"
+  ]
 }
 ```
 
 ```json
 // .vscode/settings.json example for WatchOS
 {
-    "sde.languageservermode": "sourcekit-lsp",
-    "sourcekit-lsp.serverPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp",
-    "sourcekit-lsp.toolchainPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
-    "sde.swiftBuildingParams" : [
-        "build",
-        "-Xswiftc",
-        "-sdk",
-        "-Xswiftc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk",
-        "-Xswiftc",
-        "-target",
-        "-Xswiftc",
-        "armv7k-apple-watchos4.0"
-    ]
+  "sde.languageservermode": "sourcekit-lsp",
+  "sourcekit-lsp.serverPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp",
+  "sourcekit-lsp.toolchainPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
+  "sde.swiftBuildingParams": [
+    "build",
+    "-Xswiftc",
+    "-sdk",
+    "-Xswiftc",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS.sdk",
+    "-Xswiftc",
+    "-target",
+    "-Xswiftc",
+    "armv7k-apple-watchos4.0"
+  ]
 }
 ```
 
 ### Build failed! What should I do?
+
 Go to vscode `OUTPUT` window, then select `SPM`. The `OUTPUT` window will tell you what's wrong.
 
 ### Other questions?
