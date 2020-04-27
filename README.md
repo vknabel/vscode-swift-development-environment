@@ -26,7 +26,7 @@ sourcekit-lsp is easier to install and will be updated more frequently. On the o
 
 1. Install [SDE](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swift-development-environment).
 2. Recent versions of Xcode ship with `sourcekit-lsp`, you can check its path running `xcrun -f sourcekit-lsp`. If not found, please [install sourcekit-lsp](https://github.com/apple/sourcekit-lsp#building-sourcekit-lsp).
-3. Set `"swift.languageServerPath": "absolute path to the sourcekit-lsp executable"` and `"sde.languageServerMode": "sourcekit-lsp"`.
+3. Set `"sourcekit-lsp.serverPath": "absolute path to the sourcekit-lsp executable"` and `"sde.languageServerMode": "sourcekit-lsp"`.
 
 ### Using sourcekite
 
