@@ -73,6 +73,10 @@ Though in most cases sourcekit-lsp and sourcekite should produce better results 
 
 There are a lot of ways you could contribute to either this project or the Swift on VS Code itself. For more information head over to [CONTRIBUTING.md](./CONTRIBUTING.md).
 
+### How can I debug my SwiftPM project?
+
+Debugging your Swift targets requires a different extension [LLDB Debugger](https://github.com/vadimcn/vscode-lldb). You can follow this tutorial: [vknabel.com/pages/Debugging-Swift-in-VS-Code](https://www.vknabel.com/pages/Debugging-Swift-in-VS-Code/).
+
 ### How do I get autocompletion when using TensorFlow?
 
 You can add the following configs. This will improve your autocompletion. Though currently the `TensorFlow` module will not be indexed yet.
