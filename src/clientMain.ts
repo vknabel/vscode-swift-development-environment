@@ -109,9 +109,7 @@ async function currentServerOptions(
           "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain",
         "usr/bin/sourcekit-lsp"
       );
-      const isPreinstalled = await promisify(fs.exists)(
-        path.resolve(toolchain, "usr/bin/sourcekit-lsp")
-      );
+      const isPreinstalled = await promisify(fs.exists)(sourcekitLSPPath);
       if (isPreinstalled) {
         return sourcekitLSPPath;
       }

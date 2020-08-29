@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.10.1
+
+- Did not respect default toolchain path
+
 ## 2.10.0
 
 - Default to Xcode's sourcekit-lsp on macOS instead of sourcekite
