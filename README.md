@@ -175,7 +175,7 @@ Go to vscode `OUTPUT` window, then select `SPM`. The `OUTPUT` window will tell y
 
 ### Other questions?
 
-If so, file an [issue](https://github.com/vknabel/swift-development-environment/issues), please :)
+If so, file an [issue](https://github.com/vknabel/vscode-swift-development-environment/issues), please :)
 
 ## License
 
