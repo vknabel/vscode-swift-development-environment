@@ -1,21 +1,18 @@
-import {
-  removingDuplicateSources,
-  flatteningTargetsWithUniqueSources
-} from "./package-helpers";
+import { removingDuplicateSources, flatteningTargetsWithUniqueSources } from "./package-helpers";
 import { Target } from "../package";
 
 const uniqueTarget: Target = {
   name: "Unique",
   path: "Sources/Unique",
   sources: new Set(["Hello.swift", "main.swift"]),
-  compilerArguments: []
+  compilerArguments: [],
 };
 
 const unrelatedTarget: Target = {
   name: "UnrelatedTarget",
   path: "Sources/UnrelatedTarget",
   sources: new Set(["Unrelated.swift"]),
-  compilerArguments: []
+  compilerArguments: [],
 };
 
 describe("package helpers", () => {
@@ -26,17 +23,14 @@ describe("package helpers", () => {
     });
 
     it("unrelated source sets will be kept", () => {
-      const emittedTargets = removingDuplicateSources(
-        [unrelatedTarget],
-        [uniqueTarget]
-      );
+      const emittedTargets = removingDuplicateSources([unrelatedTarget], [uniqueTarget]);
       expect(emittedTargets).toEqual([unrelatedTarget]);
     });
 
     it("unrelated source sets with differing paths will be kept for same file names", () => {
       const unrelatedTargetWithSameFileNames: Target = {
         ...unrelatedTarget,
-        sources: uniqueTarget.sources
+        sources: uniqueTarget.sources,
       };
 
       const emittedTargets = removingDuplicateSources(
@@ -49,7 +43,7 @@ describe("package helpers", () => {
     it("source sets with same paths but different file names are kept", () => {
       const samePathTargetWithDifferentSources = {
         ...unrelatedTarget,
-        path: uniqueTarget.path
+        path: uniqueTarget.path,
       };
       const emittedTargets = removingDuplicateSources(
         [samePathTargetWithDifferentSources],
@@ -66,7 +60,7 @@ describe("package helpers", () => {
           Array(uniqueTarget.sources.values()).map(
             sourceFile => `${uniqueTarget.path}/${sourceFile}`
           )
-        )
+        ),
       };
       const emittedTargets = removingDuplicateSources(
         [differentPathTargetWithSameSources],
@@ -85,28 +79,24 @@ describe("package helpers", () => {
             name: "HiModuleFromConfigs",
             path: "/Users/vknabel/Desktop/AutocompleteIos/Sources/Hi",
             sources: new Set(["Hi.swift"]),
-            compilerArguments: []
-          }
+            compilerArguments: [],
+          },
         ],
         [
           {
             name: "HiModuleFromDebugYaml",
             path: "/Users/vknabel/Desktop/AutocompleteIos",
-            sources: new Set([
-              "/Users/vknabel/Desktop/AutocompleteIos/Sources/Hi/Hi.swift"
-            ]),
-            compilerArguments: []
-          }
+            sources: new Set(["/Users/vknabel/Desktop/AutocompleteIos/Sources/Hi/Hi.swift"]),
+            compilerArguments: [],
+          },
         ],
         [
           {
             name: "AutocompleteIos",
             path: "/Users/vknabel/Desktop/AutocompleteIos",
-            sources: new Set([
-              "/Users/vknabel/Desktop/AutocompleteIos/Package.swift"
-            ]),
-            compilerArguments: []
-          }
+            sources: new Set(["/Users/vknabel/Desktop/AutocompleteIos/Package.swift"]),
+            compilerArguments: [],
+          },
         ]
       );
       expect(emittedTargets).toEqual([
@@ -114,22 +104,20 @@ describe("package helpers", () => {
           name: "HiModuleFromConfigs",
           path: "/Users/vknabel/Desktop/AutocompleteIos/Sources/Hi",
           sources: new Set(["Hi.swift"]),
-          compilerArguments: []
+          compilerArguments: [],
         },
         {
           name: "HiModuleFromDebugYaml",
           path: "/Users/vknabel/Desktop/AutocompleteIos",
           sources: new Set([]),
-          compilerArguments: []
+          compilerArguments: [],
         },
         {
           name: "AutocompleteIos",
           path: "/Users/vknabel/Desktop/AutocompleteIos",
-          sources: new Set([
-            "/Users/vknabel/Desktop/AutocompleteIos/Package.swift"
-          ]),
-          compilerArguments: []
-        }
+          sources: new Set(["/Users/vknabel/Desktop/AutocompleteIos/Package.swift"]),
+          compilerArguments: [],
+        },
       ]);
     });
   });

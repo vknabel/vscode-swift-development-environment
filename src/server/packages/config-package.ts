@@ -8,13 +8,10 @@ export const configPackage: Package = async fromPath => {
   const targets = Current.config.targets
     .filter(
       ({ path: targetPath }) =>
-        path.isAbsolute(targetPath) ||
-        fs.existsSync(path.resolve(fromPath, targetPath))
+        path.isAbsolute(targetPath) || fs.existsSync(path.resolve(fromPath, targetPath))
     )
     .map(async configTarget => {
-      const targetPath = path.normalize(
-        path.resolve(fromPath, configTarget.path)
-      );
+      const targetPath = path.normalize(path.resolve(fromPath, configTarget.path));
       const expandedSources = (configTarget.sources || ["**/*.swift"]).map(
         expandingSourceGlob(fromPath, targetPath)
       );
@@ -23,7 +20,7 @@ export const configPackage: Package = async fromPath => {
         ...configTarget,
         path: targetPath,
         sources: new Set([].concat(...sources)),
-        compilerArguments: configTarget.compilerArguments || []
+        compilerArguments: configTarget.compilerArguments || [],
       };
     });
   return await Promise.all(targets);

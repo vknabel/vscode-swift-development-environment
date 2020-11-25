@@ -16,8 +16,7 @@ export const descriptionPackage: Package = async fromPath => {
   try {
     const data = await Current.swift(fromPath, `package describe --type json`);
     const packageDescription = JSON.parse(data) as PackageDescription;
-    const targetDescription =
-      packageDescription.modules || packageDescription.targets;
+    const targetDescription = packageDescription.modules || packageDescription.targets;
     return targetDescription.map(targetFromDescriptionFromPath(fromPath));
   } catch (error) {
     Current.report(error);
@@ -34,8 +33,8 @@ function targetFromDescriptionFromPath(fromPath: Path) {
       compilerArguments: [
         "-I",
         joinPath(fromPath, ".build", "debug"),
-        ...Current.defaultCompilerArguments()
-      ]
+        ...Current.defaultCompilerArguments(),
+      ],
     };
   };
 }

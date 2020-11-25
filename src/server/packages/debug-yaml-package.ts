@@ -41,11 +41,9 @@ export const debugYamlPackage: Package = async fromPath => {
       name: command["module-name"] || name,
       path: fromPath, // actually a subfolder, but all paths are absolute
       sources: new Set(
-        command.sources.map(toSource =>
-          path.normalize(path.resolve(fromPath, toSource))
-        )
+        command.sources.map(toSource => path.normalize(path.resolve(fromPath, toSource)))
       ),
-      compilerArguments: compilerArgumentsForCommand(command)
+      compilerArguments: compilerArgumentsForCommand(command),
     });
   }
   return targets;
@@ -67,20 +65,13 @@ function compilerArgumentsForCommand(command: LLCommand): string[] {
   const importPaths = command["import-paths"] || [];
   const otherArgs = command["other-args"] || [];
   const moduleNameArgs =
-    (command["module-name"] && [
-      "-module-name",
-      command["module-name"],
-      "-Onone"
-    ]) ||
-    [];
+    (command["module-name"] && ["-module-name", command["module-name"], "-Onone"]) || [];
   const importPathArgs = importPaths.map(compilerArgumentsForImportPath);
   return otherArgs.concat(moduleNameArgs, ...importPathArgs);
 }
 
 function contentsOfDebugOrReleaseYaml(fromPath: Path) {
-  return contentsOfFile(
-    path.resolve(fromPath, ".build", "debug.yaml")
-  ).catch(() =>
+  return contentsOfFile(path.resolve(fromPath, ".build", "debug.yaml")).catch(() =>
     contentsOfFile(path.resolve(fromPath, ".build", "release.yaml"))
   );
 }
