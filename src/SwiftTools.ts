@@ -1,28 +1,18 @@
 "use strict";
 
-import {
-  Uri,
-  Diagnostic,
-  DiagnosticSeverity,
-  Range,
-  window as vscodeWindow
-} from "vscode";
+import { Uri, Diagnostic, DiagnosticSeverity, Range, window as vscodeWindow } from "vscode";
 import cp = require("child_process");
 import {
   trace,
   dumpInConsole,
   diagnosticCollection,
   makeBuildStatusFailed,
-  makeBuildStatusSuccessful
+  makeBuildStatusSuccessful,
 } from "./clientMain";
 
 let stdout: string;
 ///managed build now only support to invoke on save
-export function buildPackage(
-  swiftBinPath: string,
-  pkgPath: string,
-  params: string[]
-) {
+export function buildPackage(swiftBinPath: string, pkgPath: string, params: string[]) {
   stdout = "";
   const sb = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
   sb.stdout.on("data", data => {
@@ -137,6 +127,6 @@ function toVSCodeSeverity(sev: string) {
     case "note":
       return DiagnosticSeverity.Information;
     default:
-      return DiagnosticSeverity.Error; //FIXME
+      return DiagnosticSeverity.Information; //FIXME
   }
 }

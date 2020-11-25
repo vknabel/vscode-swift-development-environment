@@ -78,7 +78,9 @@ function compilerArgumentsForCommand(command: LLCommand): string[] {
 }
 
 function contentsOfDebugOrReleaseYaml(fromPath: Path) {
-  return contentsOfFile(path.resolve(fromPath, ".build", "debug.yaml")).catch(
-    () => contentsOfFile(path.resolve(fromPath, ".build", "release.yaml"))
+  return contentsOfFile(
+    path.resolve(fromPath, ".build", "debug.yaml")
+  ).catch(() =>
+    contentsOfFile(path.resolve(fromPath, ".build", "release.yaml"))
   );
 }

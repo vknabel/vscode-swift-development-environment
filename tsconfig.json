@@ -4,9 +4,10 @@
     "target": "es6",
     "outDir": "out",
     "lib": ["es6"],
+    "rootDir": "src",
     "sourceMap": true,
-    "rootDir": "."
+    // "strict": true,
+    // "noUnusedLocals": true
   },
-  "exclude": ["node_modules", "server", "out"],
   "compileOnSave": true
 }
