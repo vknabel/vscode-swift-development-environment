@@ -2,27 +2,30 @@
 
 import { Uri, Diagnostic, DiagnosticSeverity, Range, window as vscodeWindow } from "vscode";
 import cp = require("child_process");
-import {
-  trace,
-  dumpInConsole,
-  diagnosticCollection,
-  makeBuildStatusFailed,
-  makeBuildStatusSuccessful,
-} from "./clientMain";
+
+import { dumpInConsole, diagnosticCollection } from "./clientMain";
+import { statusBarItem } from "./status-bar";
+import { isBuildTracingOn } from "./config-helpers";
+
+function trace(...msg: any[]) {
+  if (isBuildTracingOn()) {
+    console.log(...msg);
+  }
+}
 
 let stdout: string;
 ///managed build now only support to invoke on save
 export function buildPackage(swiftBinPath: string, pkgPath: string, params: string[]) {
   stdout = "";
-  const sb = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
-  sb.stdout.on("data", data => {
+  const buildProc = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
+  buildProc.stdout.on("data", data => {
     stdout += data;
     dumpInConsole("" + data);
   });
-  sb.stderr.on("data", data => {
+  buildProc.stderr.on("data", data => {
     dumpInConsole("" + data);
   });
-  sb.on("error", function(err: Error) {
+  buildProc.on("error", function(err: Error) {
     trace("***swift build command error*** " + err.message);
     if (err.message.indexOf("ENOENT") > 0) {
       const msg =
@@ -34,16 +37,16 @@ export function buildPackage(swiftBinPath: string, pkgPath: string, params: stri
     }
   });
 
-  sb.on("exit", function(code, signal) {
+  buildProc.on("exit", function(code, signal) {
     trace(`***swift build command exited*** code: ${code}, signal: ${signal}`);
     dumpInConsole("\n");
     diagnosticCollection.clear();
     dumpDiagnostics();
 
     if (code != 0) {
-      makeBuildStatusFailed();
+      statusBarItem.buildFailed();
     } else {
-      makeBuildStatusSuccessful();
+      statusBarItem.buildSucceeded();
     }
   });
 }

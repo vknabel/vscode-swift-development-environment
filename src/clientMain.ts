@@ -10,36 +10,36 @@ import {
   languages,
   ExtensionContext,
   DiagnosticCollection,
-  StatusBarItem,
-  StatusBarAlignment,
   OutputChannel,
   TextDocument,
-  ThemeColor,
 } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { absolutePath } from "./AbsolutePath";
 
-import {
-  buildOnSave,
-  sourcekiteServerOptions,
-  lspServerOptions,
-  sourcekitLspServerOptions,
-} from "./config-helpers";
+import * as config from "./config-helpers";
+import { LangaugeServerMode } from "./config-helpers";
+
+import { statusBarItem } from "./status-bar";
 
 let swiftBinPath: string | null = null;
 let swiftBuildParams: string[] = ["build"];
 let swiftPackageManifestPath: string | null = null;
 let skProtocolProcess: string | null = null;
 let skProtocolProcessAsShellCmd: string | null = null;
-export let isTracingOn: boolean = false;
-export let isLSPServerTracingOn: boolean = false;
 export let diagnosticCollection: DiagnosticCollection;
-let spmChannel: OutputChannel | null = null;
+export let sdeChannel: OutputChannel | undefined;
 
-export async function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext) {
+  sdeChannel = window.createOutputChannel("SDE");
+  context.subscriptions.push(sdeChannel);
+
   if (workspace.getConfiguration().get<boolean>("sde.enable") === false) {
+    sdeChannel.appendLine("SDE Disabled");
     return;
   }
+  sdeChannel.show();
+  sdeChannel.appendLine("Activating SDE");
+
   initConfig();
 
   // Options to control the language client
@@ -58,7 +58,7 @@ export async function activate(context: ExtensionContext) {
       ],
     },
     initializationOptions: {
-      isLSPServerTracingOn,
+      isLSPServerTracingOn: config.isLSPTracingOn(),
       skProtocolProcess,
       skProtocolProcessAsShellCmd,
       skCompilerOptions: workspace.getConfiguration().get("sde.sourcekit.compilerOptions"),
@@ -69,7 +69,7 @@ export async function activate(context: ExtensionContext) {
   };
 
   // Create the language client and start the client.
-  const lspOpts = await currentServerOptions(context);
+  const lspOpts = currentServerOptions(context);
   const langClient = new LanguageClient("Swift", lspOpts, clientOptions);
   context.subscriptions.push(langClient.start());
 
@@ -78,10 +78,25 @@ export async function activate(context: ExtensionContext) {
 
   //commands
   context.subscriptions.push(
-    commands.registerCommand("sde.commands.buildPackage", buildSPMPackage)
+    commands.registerCommand("sde.commands.buildPackage", buildSPMPackage),
+    commands.registerCommand("sde.commands.restartLanguageServer", () => {
+      sdeChannel.show(true);
+      sdeChannel.appendLine("sde.commands.restartLanguageServer");
+    }),
+    commands.registerCommand("sde.commands.runPackage", () => {
+      sdeChannel.show(true);
+      sdeChannel.appendLine("sde.commands.runPackage");
+    })
   );
 
   workspace.onDidSaveTextDocument(onSave, null, context.subscriptions);
+
+  // respond to settings changes
+  workspace.onDidChangeConfiguration(event => {
+    if (event.affectsConfiguration("sde")) {
+      // reload things as necessary
+    }
+  });
 
   // build on startup
   buildSPMPackage();
@@ -90,114 +105,55 @@ export async function activate(context: ExtensionContext) {
 function initConfig() {
   checkToolsAvailability();
 
-  isTracingOn = <boolean>workspace.getConfiguration().get("sde.enableTracing.client");
-  isLSPServerTracingOn = <boolean>workspace.getConfiguration().get("sde.enableTracing.LSPServer");
   //FIXME rootPath may be undefined for adhoc file editing mode???
   swiftPackageManifestPath = workspace.rootPath
     ? path.join(workspace.rootPath, "Package.swift")
     : null;
-
-  spmChannel = window.createOutputChannel("SPM");
 }
 
 function currentServerOptions(context: ExtensionContext): ServerOptions {
-  const lspMode = workspace.getConfiguration("sde").get("languageServerMode", "sourcekit-lsp");
-
-  if (lspMode === "sourcekit-lsp") {
-    return sourcekitLspServerOptions(context);
-  } else if (lspMode === "langserver") {
-    return lspServerOptions(context);
-  } else {
-    return sourcekiteServerOptions(context);
+  switch (config.lsp()) {
+    case LangaugeServerMode.LanguageServer:
+      return config.lspServerOptions(context);
+    case LangaugeServerMode.SourceKit:
+      return config.sourcekitLspServerOptions(context);
+    case LangaugeServerMode.SourceKite:
+      return config.sourcekiteServerOptions(context);
   }
 }
 
 function currentClientOptions(_context: ExtensionContext): Partial<LanguageClientOptions> {
-  const lspMode = workspace.getConfiguration("sde").get("languageServerMode");
-  if (lspMode === "sourcekit-lsp") {
-    return {
-      documentSelector: ["swift", "cpp", "c", "objective-c", "objective-cpp"],
-      synchronize: undefined,
-    };
-  } else {
-    return {};
+  switch (config.lsp()) {
+    case LangaugeServerMode.SourceKit:
+      return {
+        documentSelector: ["swift", "cpp", "c", "objective-c", "objective-cpp"],
+        synchronize: undefined,
+      };
+    default:
+      return {};
   }
 }
 
 function buildSPMPackage() {
   if (isSPMProject()) {
-    if (!buildStatusItem) {
-      initBuildStatusItem();
-    }
-
-    makeBuildStatusStarted();
+    statusBarItem.start();
+    sdeChannel.appendLine("Starting package build");
     tools.buildPackage(swiftBinPath, workspace.rootPath, swiftBuildParams);
   }
 }
 
 function onSave(document: TextDocument) {
-  if (buildOnSave() && document.languageId === "swift") {
+  if (config.buildOnSave() && document.languageId === "swift") {
     buildSPMPackage();
   }
-}
-
-export let buildStatusItem: StatusBarItem;
-let originalBuildStatusItemColor: string | ThemeColor | undefined = undefined;
-function initBuildStatusItem() {
-  buildStatusItem = window.createStatusBarItem(StatusBarAlignment.Left);
-  originalBuildStatusItemColor = buildStatusItem.color;
-}
-
-const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-let building: NodeJS.Timeout | null = null;
-
-function makeBuildStatusStarted() {
-  buildStatusItem.color = originalBuildStatusItemColor;
-  buildStatusItem.show();
-  let animation = frame();
-  if (building) {
-    clearInterval(building);
-  }
-  building = setInterval(() => {
-    buildStatusItem.text = `${animation()} building`;
-  }, 100);
-}
-
-function frame() {
-  var i = 0;
-  return function() {
-    return frames[(i = ++i % frames.length)];
-  };
-}
-
-export function makeBuildStatusFailed() {
-  if (building) {
-    clearInterval(building);
-  }
-  buildStatusItem.text = "$(issue-opened) build failed";
-  buildStatusItem.color = "red";
-}
-
-export function makeBuildStatusSuccessful() {
-  if (building) {
-    clearInterval(building);
-  }
-  buildStatusItem.text = "$(check) build succeeded";
-  buildStatusItem.color = originalBuildStatusItemColor;
 }
 
 function isSPMProject(): boolean {
   return swiftPackageManifestPath ? fs.existsSync(swiftPackageManifestPath) : false;
 }
 
-export function trace(...msg: any[]) {
-  if (isTracingOn) {
-    console.log(...msg);
-  }
-}
-
 export function dumpInConsole(msg: string) {
-  spmChannel?.append(msg);
+  sdeChannel?.append(msg);
 }
 
 function checkToolsAvailability() {

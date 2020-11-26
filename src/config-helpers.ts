@@ -3,16 +3,37 @@ import * as fs from "fs";
 import { workspace, ExtensionContext } from "vscode";
 import { ServerOptions, TransportKind, Executable } from "vscode-languageclient";
 
+export enum LangaugeServerMode {
+  SourceKit = "sourcekit-lsp",
+  LanguageServer = "langserver",
+  SourceKite = "sourcekite",
+}
+
+/**
+ * @returns which language server to use
+ */
+export function lsp(): LangaugeServerMode {
+  return workspace
+    .getConfiguration()
+    .get<LangaugeServerMode>("sde.languageServerMode", LangaugeServerMode.SourceKit);
+}
+
 /**
  * @returns if the project should be built when a file is saved
  */
 export function buildOnSave(): boolean {
-  const should = workspace.getConfiguration().get<boolean>("sde.buildOnSave");
-  if (should === undefined) {
-    return true;
-  } else {
-    return should;
-  }
+  return workspace.getConfiguration().get<boolean>("sde.buildOnSave", true);
+}
+
+/**
+ * @returns if build logging is enabled
+ */
+export function isBuildTracingOn(): boolean {
+  return workspace.getConfiguration().get("sde.enableTracing.client");
+}
+
+export function isLSPTracingOn(): boolean {
+  return workspace.getConfiguration().get("sde.enableTracing.LSPServer");
 }
 
 /**
