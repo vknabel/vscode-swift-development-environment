@@ -17,6 +17,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-lan
 import { absolutePath } from "./AbsolutePath";
 
 import * as config from "./config-helpers";
+import output from "./output-channels";
 import { LangaugeServerMode } from "./config-helpers";
 
 import { statusBarItem } from "./status-bar";
@@ -27,18 +28,15 @@ let swiftPackageManifestPath: string | null = null;
 let skProtocolProcess: string | null = null;
 let skProtocolProcessAsShellCmd: string | null = null;
 export let diagnosticCollection: DiagnosticCollection;
-export let sdeChannel: OutputChannel | undefined;
 
 export function activate(context: ExtensionContext) {
-  sdeChannel = window.createOutputChannel("SDE");
-  context.subscriptions.push(sdeChannel);
+  output.init(context);
 
   if (workspace.getConfiguration().get<boolean>("sde.enable") === false) {
-    sdeChannel.appendLine("SDE Disabled");
+    output.build.log("SDE Disabled", false);
     return;
   }
-  sdeChannel.show();
-  sdeChannel.appendLine("Activating SDE");
+  output.build.log("Activating SDE");
 
   initConfig();
 
@@ -58,7 +56,7 @@ export function activate(context: ExtensionContext) {
       ],
     },
     initializationOptions: {
-      isLSPServerTracingOn: config.isLSPTracingOn(),
+      isLSPServerTracingOn: config.isLSPTracingOn(), // used by sourcekites
       skProtocolProcess,
       skProtocolProcessAsShellCmd,
       skCompilerOptions: workspace.getConfiguration().get("sde.sourcekit.compilerOptions"),
@@ -80,12 +78,10 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand("sde.commands.buildPackage", buildSPMPackage),
     commands.registerCommand("sde.commands.restartLanguageServer", () => {
-      sdeChannel.show(true);
-      sdeChannel.appendLine("sde.commands.restartLanguageServer");
+      output.build.log("sde.commands.restartLanguageServer");
     }),
     commands.registerCommand("sde.commands.runPackage", () => {
-      sdeChannel.show(true);
-      sdeChannel.appendLine("sde.commands.runPackage");
+      output.build.log("sde.commands.runPackage");
     })
   );
 
@@ -137,7 +133,7 @@ function currentClientOptions(_context: ExtensionContext): Partial<LanguageClien
 function buildSPMPackage() {
   if (isSPMProject()) {
     statusBarItem.start();
-    sdeChannel.appendLine("Starting package build");
+    output.build.log("Starting package build");
     tools.buildPackage(swiftBinPath, workspace.rootPath, swiftBuildParams);
   }
 }
@@ -150,10 +146,6 @@ function onSave(document: TextDocument) {
 
 function isSPMProject(): boolean {
   return swiftPackageManifestPath ? fs.existsSync(swiftPackageManifestPath) : false;
-}
-
-export function dumpInConsole(msg: string) {
-  sdeChannel?.append(msg);
 }
 
 function checkToolsAvailability() {

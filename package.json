@@ -150,7 +150,7 @@
         "sde.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Wether SDE shall be executed."
+          "description": "Enable SDE functionality"
         },
         "sde.languageServerMode": {
           "type": "string",

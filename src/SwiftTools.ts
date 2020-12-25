@@ -1,11 +1,11 @@
 "use strict";
 
-import { Uri, Diagnostic, DiagnosticSeverity, Range, window as vscodeWindow } from "vscode";
-import cp = require("child_process");
-
-import { dumpInConsole, diagnosticCollection } from "./clientMain";
-import { statusBarItem } from "./status-bar";
+import { Diagnostic, DiagnosticSeverity, Range, Uri, window as vscodeWindow } from "vscode";
+import { diagnosticCollection } from "./clientMain";
 import { isBuildTracingOn } from "./config-helpers";
+import output from "./output-channels";
+import { statusBarItem } from "./status-bar";
+import cp = require("child_process");
 
 function trace(...msg: any[]) {
   if (isBuildTracingOn()) {
@@ -13,17 +13,21 @@ function trace(...msg: any[]) {
   }
 }
 
-let stdout: string;
 ///managed build now only support to invoke on save
 export function buildPackage(swiftBinPath: string, pkgPath: string, params: string[]) {
-  stdout = "";
+  output.build.log("Build Started");
   const buildProc = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
   buildProc.stdout.on("data", data => {
-    stdout += data;
-    dumpInConsole("" + data);
+    const msg = `${data}`.trim();
+    if (msg.length) {
+      output.build.log(msg);
+    }
   });
   buildProc.stderr.on("data", data => {
-    dumpInConsole("" + data);
+    const msg = `${data}`.trim();
+    if (msg.length) {
+      output.build.log(`Error - ${msg}`);
+    }
   });
   buildProc.on("error", function(err: Error) {
     trace("***swift build command error*** " + err.message);
@@ -39,14 +43,16 @@ export function buildPackage(swiftBinPath: string, pkgPath: string, params: stri
 
   buildProc.on("exit", function(code, signal) {
     trace(`***swift build command exited*** code: ${code}, signal: ${signal}`);
-    dumpInConsole("\n");
+    output.build.log("\n");
     diagnosticCollection.clear();
     dumpDiagnostics();
 
     if (code != 0) {
       statusBarItem.buildFailed();
+      output.build.log("Build Failed");
     } else {
       statusBarItem.buildSucceeded();
+      output.build.log("Build Succeeded");
     }
   });
 }
