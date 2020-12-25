@@ -1,14 +1,4 @@
-import {
-  workspace,
-  window,
-  commands,
-  languages,
-  ExtensionContext,
-  DiagnosticCollection,
-  OutputChannel,
-  TextDocument,
-  Disposable,
-} from "vscode";
+import { Disposable, ExtensionContext, window } from "vscode";
 
 interface OutputStream {
   log(msg: string, show?: boolean): void;
