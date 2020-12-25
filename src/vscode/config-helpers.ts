@@ -42,7 +42,7 @@ export function isLSPTracingOn(): boolean {
  */
 export function sourcekiteServerOptions(context: ExtensionContext): ServerOptions {
   // The server is implemented in node
-  const serverModule = context.asAbsolutePath(path.join("out/src/server", "server.js"));
+  const serverModule = context.asAbsolutePath(path.join("out/src/sourcekites-server", "server.js"));
   // The debug options for the server
   const debugOptions = {
     execArgv: ["--nolazy", "--inspect=6004"],
@@ -66,7 +66,7 @@ export function sourcekiteServerOptions(context: ExtensionContext): ServerOption
   return serverOptions;
 }
 
-export function lspServerOptions(context: ExtensionContext): ServerOptions {
+export function lspServerOptions(): ServerOptions {
   // Load the path to the language server from settings
   const executableCommand = workspace
     .getConfiguration("swift")
@@ -84,7 +84,7 @@ export function lspServerOptions(context: ExtensionContext): ServerOptions {
   return serverOptions;
 }
 
-export function sourcekitLspServerOptions(context: ExtensionContext): ServerOptions {
+export function sourcekitLspServerOptions(): ServerOptions {
   const toolchain = workspace.getConfiguration("sourcekit-lsp").get<string>("toolchainPath");
 
   const sourcekitPath = sourceKitLSPLocation(toolchain);

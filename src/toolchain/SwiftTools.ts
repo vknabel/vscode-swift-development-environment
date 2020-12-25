@@ -1,10 +1,10 @@
 "use strict";
 
 import { Diagnostic, DiagnosticSeverity, Range, Uri, window as vscodeWindow } from "vscode";
-import { diagnosticCollection } from "./clientMain";
-import { isBuildTracingOn } from "./config-helpers";
-import output from "./output-channels";
-import { statusBarItem } from "./status-bar";
+import { diagnosticCollection } from "../clientMain";
+import { isBuildTracingOn } from "../vscode/config-helpers";
+import output from "../vscode/output-channels";
+import { statusBarItem } from "../vscode/status-bar";
 import cp = require("child_process");
 
 function trace(...msg: any[]) {
@@ -13,13 +13,18 @@ function trace(...msg: any[]) {
   }
 }
 
+/** parsed to generate diagnostics */
+let buildOutput = "";
+
 ///managed build now only support to invoke on save
 export function buildPackage(swiftBinPath: string, pkgPath: string, params: string[]) {
+  buildOutput = "";
   output.build.log("Build Started");
   const buildProc = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
   buildProc.stdout.on("data", data => {
     const msg = `${data}`.trim();
     if (msg.length) {
+      buildOutput += data;
       output.build.log(msg);
     }
   });
@@ -60,7 +65,7 @@ export function buildPackage(swiftBinPath: string, pkgPath: string, params: stri
 function dumpDiagnostics() {
   const diagnosticMap: Map<string, Diagnostic[]> = new Map();
   let diags: Array<string[]> = [];
-  const lines = stdout.split("\n");
+  const lines = buildOutput.split("\n");
 
   function isDiagStartLine(line: string) {
     //FIXME

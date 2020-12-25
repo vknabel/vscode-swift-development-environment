@@ -1,26 +1,22 @@
 "use strict";
 
-import * as path from "path";
 import * as fs from "fs";
 import * as tools from "./SwiftTools";
+import * as path from "path";
 import {
-  workspace,
-  window,
   commands,
-  languages,
-  ExtensionContext,
   DiagnosticCollection,
-  OutputChannel,
+  ExtensionContext,
+  languages,
   TextDocument,
+  window,
+  workspace,
 } from "vscode";
-import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
-import { absolutePath } from "./AbsolutePath";
-
-import * as config from "./config-helpers";
-import output from "./output-channels";
-import { LangaugeServerMode } from "./config-helpers";
-
-import { statusBarItem } from "./status-bar";
+import { absolutePath } from "./helpers/AbsolutePath";
+import * as config from "./vscode/config-helpers";
+import lsp from "./vscode/lsp-interop";
+import output from "./vscode/output-channels";
+import { statusBarItem } from "./vscode/status-bar";
 
 let swiftBinPath: string | null = null;
 let swiftBuildParams: string[] = ["build"];
@@ -39,37 +35,7 @@ export function activate(context: ExtensionContext) {
   output.build.log("Activating SDE");
 
   initConfig();
-
-  // Options to control the language client
-  let clientOptions: LanguageClientOptions = {
-    // Register the server for plain text documents
-    documentSelector: [
-      { language: "swift", scheme: "file" },
-      { pattern: "*.swift", scheme: "file" },
-    ],
-    synchronize: {
-      configurationSection: ["swift", "editor", "[swift]"],
-      // Notify the server about file changes to '.clientrc files contain in the workspace
-      fileEvents: [
-        workspace.createFileSystemWatcher("**/*.swift"),
-        workspace.createFileSystemWatcher(".build/*.yaml"),
-      ],
-    },
-    initializationOptions: {
-      isLSPServerTracingOn: config.isLSPTracingOn(), // used by sourcekites
-      skProtocolProcess,
-      skProtocolProcessAsShellCmd,
-      skCompilerOptions: workspace.getConfiguration().get("sde.sourcekit.compilerOptions"),
-      toolchainPath:
-        workspace.getConfiguration("sourcekit-lsp").get<string>("toolchainPath") || null,
-    },
-    ...currentClientOptions(context),
-  };
-
-  // Create the language client and start the client.
-  const lspOpts = currentServerOptions(context);
-  const langClient = new LanguageClient("Swift", lspOpts, clientOptions);
-  context.subscriptions.push(langClient.start());
+  lsp.startLSPClient(context);
 
   diagnosticCollection = languages.createDiagnosticCollection("swift");
   context.subscriptions.push(diagnosticCollection);
@@ -77,9 +43,9 @@ export function activate(context: ExtensionContext) {
   //commands
   context.subscriptions.push(
     commands.registerCommand("sde.commands.buildPackage", buildSPMPackage),
-    commands.registerCommand("sde.commands.restartLanguageServer", () => {
-      output.build.log("sde.commands.restartLanguageServer");
-    }),
+    commands.registerCommand("sde.commands.restartLanguageServer", () =>
+      lsp.restartLSPClient(context)
+    ),
     commands.registerCommand("sde.commands.runPackage", () => {
       output.build.log("sde.commands.runPackage");
     })
@@ -102,38 +68,14 @@ function initConfig() {
   checkToolsAvailability();
 
   //FIXME rootPath may be undefined for adhoc file editing mode???
-  swiftPackageManifestPath = workspace.rootPath
-    ? path.join(workspace.rootPath, "Package.swift")
+  swiftPackageManifestPath = workspace.workspaceFolders[0]
+    ? path.join(workspace.workspaceFolders[0].uri.fsPath, "Package.swift")
     : null;
-}
-
-function currentServerOptions(context: ExtensionContext): ServerOptions {
-  switch (config.lsp()) {
-    case LangaugeServerMode.LanguageServer:
-      return config.lspServerOptions(context);
-    case LangaugeServerMode.SourceKit:
-      return config.sourcekitLspServerOptions(context);
-    case LangaugeServerMode.SourceKite:
-      return config.sourcekiteServerOptions(context);
-  }
-}
-
-function currentClientOptions(_context: ExtensionContext): Partial<LanguageClientOptions> {
-  switch (config.lsp()) {
-    case LangaugeServerMode.SourceKit:
-      return {
-        documentSelector: ["swift", "cpp", "c", "objective-c", "objective-cpp"],
-        synchronize: undefined,
-      };
-    default:
-      return {};
-  }
 }
 
 function buildSPMPackage() {
   if (isSPMProject()) {
     statusBarItem.start();
-    output.build.log("Starting package build");
     tools.buildPackage(swiftBinPath, workspace.rootPath, swiftBuildParams);
   }
 }
