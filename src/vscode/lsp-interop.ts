@@ -1,5 +1,6 @@
 import { workspace, ExtensionContext, Disposable } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
+import { absolutePath } from "../helpers/AbsolutePath";
 import * as config from "./config-helpers";
 import { LangaugeServerMode } from "./config-helpers";
 
@@ -20,6 +21,21 @@ function currentClientOptions(): Partial<LanguageClientOptions> {
       return {
         documentSelector: ["swift", "cpp", "c", "objective-c", "objective-cpp"],
         synchronize: undefined,
+      };
+    case LangaugeServerMode.SourceKite:
+      return {
+        initializationOptions: {
+          isLSPServerTracingOn: config.isLSPTracingOn(),
+          skProtocolProcess: absolutePath(
+            workspace.getConfiguration().get("swift.path.sourcekite")
+          ),
+          skProtocolProcessAsShellCmd: workspace
+            .getConfiguration()
+            .get<boolean>("swift.path.sourcekiteDockerMode"),
+          skCompilerOptions: workspace.getConfiguration().get("sde.sourcekit.compilerOptions"),
+          toolchainPath:
+            workspace.getConfiguration("sourcekit-lsp").get<string>("toolchainPath") || null,
+        },
       };
     default:
       return {};
@@ -48,14 +64,6 @@ function startLSPClient(context: ExtensionContext) {
         workspace.createFileSystemWatcher("**/*.swift"),
         workspace.createFileSystemWatcher(".build/*.yaml"),
       ],
-    },
-    initializationOptions: {
-      //   isLSPServerTracingOn: config.isLSPTracingOn(), // used by sourcekite
-      //   skProtocolProcess, // used by sourcekite
-      //   skProtocolProcessAsShellCmd, // used by sourcekite
-      //   skCompilerOptions: workspace.getConfiguration().get("sde.sourcekit.compilerOptions"), // used by sourcekite
-      //   toolchainPath:
-      //     workspace.getConfiguration("sourcekit-lsp").get<string>("toolchainPath") || null,
     },
     ...currentClientOptions(),
   };
