@@ -25,25 +25,25 @@ const getItem = () => {
 const stopAnimation = () => clearInterval(animationInterval);
 
 export const statusBarItem = {
-  start() {
+  start(action: string = "building") {
     stopAnimation();
     const item = getItem();
     const nextFrame = buildAnimator();
     animationInterval = setInterval(() => {
-      item.text = `${nextFrame()} building`;
+      item.text = `${nextFrame()} ${action}`;
     }, 100);
   },
-  buildSucceeded() {
+  succeeded(action: string = "build") {
     stopAnimation();
     const item = getItem();
-    item.text = "$(check) build succeeded";
+    item.text = `$(check) ${action} succeeded`;
     item.color = defaultColor;
-    setTimeout(() => item.hide(), 5000);
+    setTimeout(() => item.hide(), 10000);
   },
-  buildFailed() {
+  failed(action: string = "build") {
     stopAnimation();
     const item = getItem();
-    item.text = "$(issue-opened) build failed";
+    item.text = `$(issue-opened) ${action} failed`;
     item.color = "red";
   },
 };

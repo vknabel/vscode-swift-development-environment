@@ -1,135 +1,223 @@
 "use strict";
 
-import { Diagnostic, DiagnosticSeverity, Range, Uri, window as vscodeWindow } from "vscode";
-import { diagnosticCollection } from "../clientMain";
-import { isBuildTracingOn } from "../vscode/config-helpers";
-import output from "../vscode/output-channels";
+import * as cp from "child_process";
+import * as fs from "fs";
+import * as path from "path";
+import { Duplex, Readable, Stream } from "stream";
+import {
+  commands,
+  Diagnostic,
+  DiagnosticCollection,
+  DiagnosticSeverity,
+  Disposable,
+  languages,
+  Range,
+  Uri,
+  workspace,
+} from "vscode";
+import * as config from "../vscode/config-helpers";
+import output, { LogStream } from "../vscode/output-channels";
 import { statusBarItem } from "../vscode/status-bar";
-import cp = require("child_process");
 
-function trace(...msg: any[]) {
-  if (isBuildTracingOn()) {
-    console.log(...msg);
-  }
+type OnProcExit = (code: number, signal: NodeJS.Signals) => void;
+type ChildProc = cp.ChildProcessWithoutNullStreams;
+type ProcAndOutput = { proc: ChildProc; output: Promise<string> };
+
+const DiagnosticFirstLine = /(.+?):(\d+):(\d+): (error|warning|note|.+?): (.+)/;
+
+export function setRunning(isRunning: boolean) {
+  commands.executeCommand("setContext", "sde:running", isRunning);
 }
 
-/** parsed to generate diagnostics */
-let buildOutput = "";
-
-///managed build now only support to invoke on save
-export function buildPackage(swiftBinPath: string, pkgPath: string, params: string[]) {
-  buildOutput = "";
-  output.build.log("Build Started");
-  const buildProc = cp.spawn(swiftBinPath, params, { cwd: pkgPath, shell: true });
-  buildProc.stdout.on("data", data => {
-    const msg = `${data}`.trim();
-    if (msg.length) {
-      buildOutput += data;
-      output.build.log(msg);
-    }
-  });
-  buildProc.stderr.on("data", data => {
-    const msg = `${data}`.trim();
-    if (msg.length) {
-      output.build.log(`Error - ${msg}`);
-    }
-  });
-  buildProc.on("error", function(err: Error) {
-    trace("***swift build command error*** " + err.message);
-    if (err.message.indexOf("ENOENT") > 0) {
-      const msg =
-        "The '" +
-        swiftBinPath +
-        "' command is not available." +
-        " Please check your swift executable user setting and ensure it is installed.";
-      vscodeWindow.showErrorMessage(msg);
-    }
-  });
-
-  buildProc.on("exit", function(code, signal) {
-    trace(`***swift build command exited*** code: ${code}, signal: ${signal}`);
-    output.build.log("\n");
-    diagnosticCollection.clear();
-    dumpDiagnostics();
-
-    if (code != 0) {
-      statusBarItem.buildFailed();
-      output.build.log("Build Failed");
-    } else {
-      statusBarItem.buildSucceeded();
-      output.build.log("Build Succeeded");
-    }
-  });
+export function swiftPackageExists(): boolean {
+  const manifestPath = workspace.workspaceFolders
+    ? path.join(workspace.workspaceFolders[0].uri.fsPath, "Package.swift")
+    : null;
+  return manifestPath && fs.existsSync(manifestPath);
 }
 
-function dumpDiagnostics() {
-  const diagnosticMap: Map<string, Diagnostic[]> = new Map();
-  let diags: Array<string[]> = [];
-  const lines = buildOutput.split("\n");
+export function shouldBuildOnSave(): boolean {
+  return config.buildOnSave() && swiftPackageExists();
+}
 
-  function isDiagStartLine(line: string) {
-    //FIXME
-    const sa = line.split(":");
-    if (sa.length > 4) {
-      const sev = sa[3].trim();
-      return sev == "error" || sev == "warning" || sev == "note";
-    }
-    return false;
-  }
-  //FIXME always the pattern?
-  function makeDiagnostic(oneDiag: string[]) {
-    const line0 = oneDiag[0];
-    const line1 = oneDiag[1];
-    const line2 = oneDiag[2];
-    const sa = line0.split(":");
-    const file = Uri.file(sa[0]).toString(); //FIXME not always file, Swift._cos:1:13:
-    //line and column in vscode is 0-based
-    const line = Number(sa[1]) - 1;
-    const startColumn: number = Number(sa[2]) - 1;
-    const sev = toVSCodeSeverity(sa[3].trim());
-    const msg = sa[4];
-    const endColumn: number = startColumn + line2.trim().length;
+export class Toolchain {
+  private swiftBinPath: string;
+  private basePath: string;
+  private buildArgs: string[];
+  private buildProc?: ChildProc;
+  private runProc?: ChildProc;
+  private _diagnostics?: DiagnosticCollection;
 
-    // let canonicalFile = vscode.Uri.file(error.file).toString();
-    // if (document && document.uri.toString() === canonicalFile) {
-    //     let range = new vscode.Range(error.line - 1, 0, error.line - 1, document.lineAt(error.line - 1).range.end.character + 1);
-    //     let text = document.getText(range);
-    //     let [_, leading, trailing] = /^(\s*).*(\s*)$/.exec(text);
-    //     startColumn = leading.length;
-    //     endColumn = text.length - trailing.length;
-    // }
-    let range = new Range(line, startColumn, line, endColumn);
-    let diagnostic = new Diagnostic(range, msg, sev);
-    let diagnostics = diagnosticMap.get(file);
-    if (!diagnostics) {
-      diagnostics = [];
-    }
-    diagnostics.push(diagnostic);
-    diagnosticMap.set(file, diagnostics);
+  constructor(swiftPath: string, pkgBasePath: string, args: string[]) {
+    this.swiftBinPath = swiftPath;
+    this.basePath = pkgBasePath;
+    this.buildArgs = args;
   }
 
-  let index = Number.MAX_VALUE;
-  let line, oneDiag, hasDiagStart;
-  for (let i = 0; i < lines.length; i++) {
-    line = lines[i];
-    if (isDiagStartLine(line)) {
-      if (!hasDiagStart) hasDiagStart = true;
-      if (oneDiag) diags.push(oneDiag);
-      oneDiag = [];
+  // Getters
+  get isRunning(): boolean {
+    return this.runProc != undefined;
+  }
+
+  get diagnostics(): DiagnosticCollection {
+    if (!this._diagnostics) {
+      this._diagnostics = languages.createDiagnosticCollection("swift");
     }
-    if (hasDiagStart) {
-      oneDiag.push(line);
+    return this._diagnostics;
+  }
+
+  // Public API
+  /**
+   * @returns A Disposable that can be used to stop this instance of the Toolchain
+   */
+  start(): Disposable {
+    return {
+      dispose: () => this.stop(),
+    };
+  }
+
+  /**
+   * Stops this instance of the Toolchain
+   */
+  stop() {
+    if (this.buildProc) {
+      console.log("Stopping build proc");
+    }
+    this.buildProc?.kill();
+    if (this.runProc) {
+      console.log("Stopping run proc");
+    }
+    this.runProc?.kill();
+  }
+
+  private spawnSwiftProc(args: string[], logs: LogStream, onExit: OnProcExit): ProcAndOutput {
+    // let oPipe = new Duplex({ highWaterMark: 1024, allowHalfOpen: false });
+    // let ePipe = new Duplex({ highWaterMark: 1024, allowHalfOpen: false });
+    const proc = cp.spawn(this.swiftBinPath, args, {
+      cwd: this.basePath,
+      // stdio: ["ignore", oPipe, ePipe],
+    });
+    proc.stderr.on("data", data => {
+      logs.write(`${data}`);
+    });
+    let stdout = "";
+    proc.stdout.on("data", data => {
+      stdout += data;
+      logs.write(`${data}`);
+    });
+    const promise = new Promise<string>((resolve, reject) => {
+      logs.log(`pid: ${proc.pid} - ${this.swiftBinPath} ${args.join(" ")}`);
+      proc.on("error", err => {
+        logs.log(`[Error] ${err.message}`);
+        reject(err);
+      });
+      proc.on("exit", (code, signal) => {
+        resolve(stdout);
+        onExit(code, signal);
+      });
+    });
+    return { proc, output: promise };
+  }
+
+  build(target: string = "") {
+    output.build.clear();
+    output.build.log("-- Build Started --");
+    const start = Date.now();
+    const buildArgs = [...this.buildArgs];
+    if (target) {
+      buildArgs.unshift(target);
+    }
+    buildArgs.unshift("build");
+    statusBarItem.start();
+    try {
+      const { proc, output: buildOutput } = this.spawnSwiftProc(buildArgs, output.build, code => {
+        const duration = Date.now() - start;
+        if (code != 0) {
+          statusBarItem.failed();
+          output.build.log(`-- Build Failed (${(duration / 1000).toFixed(1)}s) --`, true);
+        } else {
+          statusBarItem.succeeded();
+          output.build.log(`-- Build Succeeded (${(duration / 1000).toFixed(1)}s) --`);
+        }
+        this.buildProc = undefined;
+      });
+      buildOutput.then(buildOutput => this.generateDiagnostics(buildOutput));
+      this.buildProc = proc;
+    } catch (e) {
+      console.log(e);
     }
   }
-  diags.push(oneDiag); //push last oneDiag
-  diags.forEach(d => {
-    if (d) {
-      makeDiagnostic(d);
+
+  private generateDiagnostics(buildOutput: string = "") {
+    this._diagnostics.clear();
+    const newDiagnostics = new Map<string, Diagnostic[]>();
+    const lines = buildOutput.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const match = line.match(DiagnosticFirstLine);
+      if (!match) {
+        // console.log(`line did not match - '${line}'`);
+        continue;
+        //       } else {
+        //         console.log(`found diagnostic -
+        // ${line}
+        // ${lines[i + 1]}
+        // ${lines[i + 2]}
+        // -------`);
+        //   console.log(match);
+      }
+      const [_, file, lineNumStr, startColStr, swiftSev, message] = match;
+      // vscode used 0 indexed lines and columns
+      const lineNum = parseInt(lineNumStr, 10) - 1;
+      const startCol = parseInt(startColStr, 10) - 1;
+      const endCol = lines[i + 2].trimEnd().length - 1;
+      const range = new Range(lineNum, startCol, lineNum, endCol);
+      const diagnostic = new Diagnostic(range, message, toVSCodeSeverity(swiftSev));
+      diagnostic.source = "sourcekitd";
+      if (!newDiagnostics.has(file)) {
+        newDiagnostics.set(file, []);
+      }
+      newDiagnostics.get(file).push(diagnostic);
     }
-  });
-  diagnosticMap.forEach((diags, file) => {
-    diagnosticCollection.set(Uri.parse(file), diags);
-  });
+    for (const entry of newDiagnostics) {
+      const [file, diagnostics] = entry;
+      if (file.includes("checkouts")) {
+        continue;
+      }
+      // TODO: check for overlapping diagnostic ranges and collapse into `diagnostic.relatedInformation`
+      const uri = Uri.parse(file);
+      // TODO: check to see if sourcekitd already has diagnostics for this file
+      this._diagnostics.set(uri, diagnostics);
+    }
+  }
+
+  runStart(target: string = "") {
+    setRunning(true);
+    output.run.clear();
+    output.run.log(`running ${target ? target : "package"}…`);
+    const { proc } = this.spawnSwiftProc(["run", target], output.run, (code, signal) => {
+      // handle termination here
+      output.run.log(`Process exited. code=${code} signal=${signal}`);
+      setRunning(false);
+      this.runProc = undefined;
+    });
+    this.runProc = proc;
+  }
+
+  runStop() {
+    setRunning(false);
+    output.run.log(`stopping`);
+    this.runProc.kill();
+    this.runProc = undefined;
+  }
+
+  clean() {
+    statusBarItem.start("cleaning");
+    this.spawnSwiftProc(["package clean"], output.build, (code, signal) => {
+      statusBarItem.succeeded("clean");
+      output.build.log("done");
+    });
+  }
 }
 
 function toVSCodeSeverity(sev: string) {
@@ -141,6 +229,6 @@ function toVSCodeSeverity(sev: string) {
     case "note":
       return DiagnosticSeverity.Information;
     default:
-      return DiagnosticSeverity.Information; //FIXME
+      return DiagnosticSeverity.Hint; //FIXME
   }
 }

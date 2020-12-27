@@ -36,13 +36,16 @@
   "activationEvents": [
     "onLanguage:swift",
     "workspaceContains:**/*swift",
-    "onCommand:sde.commands.buildPackage"
+    "onCommand:sde.commands.build",
+    "onCommand:sde.commands.run",
+    "onCommand:sde.commands.clean",
+    "onCommand:sde.commands.selectRun"
   ],
   "main": "./out/clientMain",
   "contributes": {
     "commands": [
       {
-        "command": "sde.commands.buildPackage",
+        "command": "sde.commands.build",
         "title": "Build Package",
         "category": "SDE"
       },
@@ -52,16 +55,55 @@
         "category": "SDE"
       },
       {
-        "command": "sde.commands.runPackage",
-        "title": "Run Package",
+        "command": "sde.commands.run",
+        "title": "Run Default Target",
+        "category": "SDE",
+        "enablement": "sde:running == false"
+      },
+      {
+        "command": "sde.commands.selectRun",
+        "title": "Run Target…",
+        "category": "SDE",
+        "enablement": "sde:running == false"
+      },
+      {
+        "command": "sde.commands.restartRun",
+        "title": "Restart Target",
+        "category": "SDE",
+        "enablement": "sde:running == true"
+      },
+      {
+        "command": "sde.commands.stop",
+        "title": "Stop Running Target",
+        "category": "SDE",
+        "enablement": "sde:running == true"
+      },
+      {
+        "command": "sde.commands.clean",
+        "title": "Clean Package",
         "category": "SDE"
       }
     ],
     "keybindings": [
       {
-        "command": "sde.commands.buildPackage",
-        "key": "alt+b",
-        "mac": "alt+b"
+        "command": "sde.commands.build",
+        "key": "alt+b"
+      },
+      {
+        "command": "sde.commands.run",
+        "key": "alt+r"
+      },
+      {
+        "command": "sde.commands.selectRun",
+        "key": "alt+shift+r"
+      },
+      {
+        "command": "sde.commands.restart",
+        "key": "alt+shift+r"
+      },
+      {
+        "command": "sde.commands.stop",
+        "key": "alt+s"
       }
     ],
     "configuration": {
