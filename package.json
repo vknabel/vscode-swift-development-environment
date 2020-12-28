@@ -98,10 +98,6 @@
         "key": "alt+shift+r"
       },
       {
-        "command": "sde.commands.restart",
-        "key": "alt+shift+r"
-      },
-      {
         "command": "sde.commands.stop",
         "key": "alt+s"
       }
