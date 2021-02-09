@@ -4,6 +4,7 @@
 
 - Allow lang server restart #82 #85 by @clayreinann
 - Commands for stop, clean and run #82 #85 by @clayreimann
+- Added tables for all configurations and commands to README
 
 ## 2.10.1
 

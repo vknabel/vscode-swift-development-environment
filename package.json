@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.10.1",
+  "version": "2.11.0-beta.0",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -117,7 +117,7 @@
         "swift.languageServerPath": {
           "type": "string",
           "default": "/usr/local/bin/langserver-swift",
-          "description": "The fully qualified path to the Swift Language Server executable."
+          "description": "[DEPRECATED] The fully qualified path to the Swift Language Server executable."
         },
         "swift.path.sourcekite": {
           "type": "string",
@@ -126,7 +126,7 @@
         "swift.path.sourcekiteDockerMode": {
           "type": "boolean",
           "default": false,
-          "description": "(Experimental)Enable to run dedicated docker shell command. It is the responsibility of user to guarantee that the docker cmd 'docker run --rm -i jinmingjian/docker-sourcekite' works in your system."
+          "description": "[DEPRECATED] (Experimental)Enable to run dedicated docker shell command. It is the responsibility of user to guarantee that the docker cmd 'docker run --rm -i jinmingjian/docker-sourcekite' works in your system."
         },
         "swift.path.swift_driver_bin": {
           "type": "string",

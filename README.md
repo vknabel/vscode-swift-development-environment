@@ -60,6 +60,38 @@ If you prefer using an alternative language server, set set `sde.languageServerM
 
 Though in most cases sourcekit-lsp and sourcekite should produce better results and performance.
 
+## Configuration
+
+| Config                             | Type       | Default                           | Description                                                                                                                                                                |
+| ---------------------------------- | ---------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sourcekit-lsp.serverPath`         | `string`   |                                   | The path of the sourcekit-lsp executable\nIn SDE: defaults to the toolchain's sourcekit-lsp.                                                                               |
+| `sourcekit-lsp.toolchainPath`      | `string`   |                                   | The path of the swift toolchain.\nIn SDE: defaults to Xcode's default toolchain.                                                                                           |
+| `swift.languageServerPath`         | `string`   | `/usr/local/bin/langserver-swift` | [DEPRECATED] The fully qualified path to the Swift Language Server executable.                                                                                             |
+| `swift.path.sourcekite`            | `string`   |                                   | The fully path to the sourcekite(SDE's LS backend).                                                                                                                        |
+| `swift.path.swift_driver_bin`      | `string`   | `/usr/bin/swift`                  | The fully path to the swift driver binary.                                                                                                                                 |
+| `swift.path.shell`                 | `string`   | `/bin/sh`                         | The fully path to the shell binary.                                                                                                                                        |
+| `sde.sourcekit.compilerOptions`    | `string[]` | `[]`                              | Optional compiler options like the target or search paths. Will only be used as default. `(debug|release).yaml` builds will override these settings.                       |
+| `swift.targets`                    | `object[]` | `[]`                              | If SDE cannot reliably detect all targets, you can manually configure them.                                                                                                |
+| `sde.enable`                       | `boolean`  | `true`                            | Enable SDE functionality                                                                                                                                                   |
+| `sde.languageServerMode`           | `string`   | `sourcekite`                      | Decides which language server should be used. `sourcekite` is the default LSP for SDE, `sourcekit-lsp` is Apple's official one and `langserver` is RLovelett's Langserver. |
+| `sde.enableTracing.client`         | `boolean`  | `false`                           | Enable tracing output for SDE client                                                                                                                                       |
+| `sde.enableTracing.LSPServer`      | `boolean`  | `false`                           | Enable tracing output for SDE LS server                                                                                                                                    |
+| `sde.buildOnSave`                  | `boolean`  | `true`                            | Indicates wether SDE shall build the project on save.                                                                                                                      |
+| `sde.swiftBuildingParams`          | `string[]` | `["build"]`                       | The params that shall be passed to the swift command.                                                                                                                      |
+| `swift.diagnosis.max_num_problems` | `number`   | `100`                             | Controls the maximum number of problems produced by the server. NOET: Not used now.                                                                                        |
+
+## Commands
+
+| Title                   | Command                              |
+| ----------------------- | ------------------------------------ |
+| Build Package           | `sde.commands.build`                 |
+| Restart Language Server | `sde.commands.restartLanguageServer` |
+| Run Default Target      | `sde.commands.run`                   |
+| Run Target…             | `sde.commands.selectRun`             |
+| Restart Target          | `sde.commands.restartRun`            |
+| Stop Running Target     | `sde.commands.stop`                  |
+| Clean Package           | `sde.commands.clean`                 |
+
 ## Contributors
 
 - Valentin Knabel, [@vknabel](https://github.com/vknabel), [twitter](https://twitter.com/vknabel), _maintainer_
