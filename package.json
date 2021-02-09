@@ -36,27 +36,75 @@
   "activationEvents": [
     "onLanguage:swift",
     "workspaceContains:**/*swift",
-    "onCommand:sde.commands.buildPackage"
+    "onCommand:sde.commands.build",
+    "onCommand:sde.commands.run",
+    "onCommand:sde.commands.clean",
+    "onCommand:sde.commands.selectRun"
   ],
-  "main": "./out/src/clientMain",
+  "main": "./out/clientMain",
   "contributes": {
     "commands": [
       {
-        "command": "sde.commands.buildPackage",
+        "command": "sde.commands.build",
         "title": "Build Package",
+        "category": "SDE"
+      },
+      {
+        "command": "sde.commands.restartLanguageServer",
+        "title": "Restart Language Server",
+        "category": "SDE"
+      },
+      {
+        "command": "sde.commands.run",
+        "title": "Run Default Target",
+        "category": "SDE",
+        "enablement": "sde:running == false"
+      },
+      {
+        "command": "sde.commands.selectRun",
+        "title": "Run Target…",
+        "category": "SDE",
+        "enablement": "sde:running == false"
+      },
+      {
+        "command": "sde.commands.restartRun",
+        "title": "Restart Target",
+        "category": "SDE",
+        "enablement": "sde:running == true"
+      },
+      {
+        "command": "sde.commands.stop",
+        "title": "Stop Running Target",
+        "category": "SDE",
+        "enablement": "sde:running == true"
+      },
+      {
+        "command": "sde.commands.clean",
+        "title": "Clean Package",
         "category": "SDE"
       }
     ],
     "keybindings": [
       {
-        "command": "sde.commands.buildPackage",
-        "key": "alt+b",
-        "mac": "alt+b"
+        "command": "sde.commands.build",
+        "key": "alt+b"
+      },
+      {
+        "command": "sde.commands.run",
+        "key": "alt+r"
+      },
+      {
+        "command": "sde.commands.selectRun",
+        "key": "alt+shift+r"
+      },
+      {
+        "command": "sde.commands.stop",
+        "key": "alt+s"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "Swift Development Environment Configuration",
+      "title": "Swift Development Environment",
       "properties": {
         "sourcekit-lsp.serverPath": {
           "type": "string",
@@ -140,7 +188,7 @@
         "sde.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Wether SDE shall be executed."
+          "description": "Enable SDE functionality"
         },
         "sde.languageServerMode": {
           "type": "string",
@@ -200,33 +248,33 @@
       {
         "language": "swift"
       }
-    ],
-    "taskDefinitions": [
-      {
-        "type": "swift",
-        "properties": {}
-      }
     ]
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "printWidth": 100
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
     "build": "npm run compile",
-    "compile": "tsc -p ./",
-    "format": "prettier CHANGELOG.md README.md src/*.ts src/server/**/*.ts tsconfig.json --write",
-    "test": "jest"
+    "compile": "npx tsc",
+    "format": "npx prettier CHANGELOG.md README.md src/*.ts src/server/**/*.ts tsconfig.json --write",
+    "test": "npx jest"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.4",
     "@types/glob": "^5.0.35",
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.11.1",
-    "@types/node": "^12.7.4",
+    "@types/node": "^12.19.7",
     "@types/vscode": "1.30.0",
     "@types/xml-js": "^1.0.0",
     "jest": "^24.9.0",
     "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.6.2"
+    "tsc": "^1.20150623.0",
+    "typescript": "^4.1.2"
   },
   "dependencies": {
     "bunyan": "^1.8.5",

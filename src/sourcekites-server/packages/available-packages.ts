@@ -10,12 +10,12 @@ export const availablePackages: Package = async fromPath => {
     configTargets,
     debugYamlTargets,
     descriptionTargets,
-    swiftFileTargets
+    swiftFileTargets,
   ] = await Promise.all([
     configPackage(fromPath),
     debugYamlPackage(fromPath),
     descriptionPackage(fromPath),
-    swiftFilePackage(fromPath)
+    swiftFilePackage(fromPath),
   ]);
   return flatteningTargetsWithUniqueSources(
     configTargets,

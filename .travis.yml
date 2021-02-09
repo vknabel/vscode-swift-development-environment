@@ -4,8 +4,8 @@ os:
   - osx
 language: node_js
 node_js:
-  - 6.5.0
-  - 7
+  - 12
+  - 14
 before_install:
   - "npm i -g typescript"
   - "npm i -g vsce"
