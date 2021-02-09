@@ -64,8 +64,8 @@ Though in most cases sourcekit-lsp and sourcekite should produce better results 
 
 | Config                             | Type       | Default                           | Description                                                                                                                                                                |
 | ---------------------------------- | ---------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sourcekit-lsp.serverPath`         | `string`   |                                   | The path of the sourcekit-lsp executable\nIn SDE: defaults to the toolchain's sourcekit-lsp.                                                                               |
-| `sourcekit-lsp.toolchainPath`      | `string`   |                                   | The path of the swift toolchain.\nIn SDE: defaults to Xcode's default toolchain.                                                                                           |
+| `sourcekit-lsp.serverPath`         | `string`   |                                   | The path of the sourcekit-lsp executable. In SDE: defaults to the toolchain's sourcekit-lsp.                                                                               |
+| `sourcekit-lsp.toolchainPath`      | `string`   |                                   | The path of the swift toolchain. In SDE: defaults to Xcode's default toolchain.                                                                                           |
 | `swift.languageServerPath`         | `string`   | `/usr/local/bin/langserver-swift` | [DEPRECATED] The fully qualified path to the Swift Language Server executable.                                                                                             |
 | `swift.path.sourcekite`            | `string`   |                                   | The fully path to the sourcekite(SDE's LS backend).                                                                                                                        |
 | `swift.path.swift_driver_bin`      | `string`   | `/usr/bin/swift`                  | The fully path to the swift driver binary.                                                                                                                                 |
@@ -205,6 +205,21 @@ Since Xcode 11.4, you may use its built-in support for sourcekit-lsp
 ### Build failed! What should I do?
 
 Go to vscode `OUTPUT` window, then select `SPM`. The `OUTPUT` window will tell you what's wrong.
+
+### I'd like to have a different build paths than usually. How can I achieve that?
+
+You can compile your app using a command like `swift build --build-path "./.build-macos"` on macOS and `swift build --build-path "./.build-linux"` on Linux, e.g. from within a docker container, you just need to add the appropriate building parameter:
+
+```
+// .vscode/settings.json
+{
+  "sde.swiftBuildingParams": [
+    "build",
+    "--build-path",
+    "./.build-macos"
+  ]
+}
+```
 
 ### Other questions?
 
