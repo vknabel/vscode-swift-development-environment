@@ -259,7 +259,7 @@
     "vscode:prepublish": "npm run build",
     "build": "npm run compile",
     "compile": "npx tsc",
-    "format": "npx prettier CHANGELOG.md README.md src/*.ts src/server/**/*.ts tsconfig.json --write",
+    "format": "npx prettier CHANGELOG.md README.md src/*.ts src/sourcekites-server/**/*.ts tsconfig.json --write",
     "test": "npx jest"
   },
   "devDependencies": {
