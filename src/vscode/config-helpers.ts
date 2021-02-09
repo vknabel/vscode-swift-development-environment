@@ -42,7 +42,7 @@ export function isLSPTracingOn(): boolean {
  */
 export function sourcekiteServerOptions(context: ExtensionContext): ServerOptions {
   // The server is implemented in node
-  const serverModule = context.asAbsolutePath(path.join("out/src/sourcekites-server", "server.js"));
+  const serverModule = context.asAbsolutePath(path.join("out/sourcekites-server", "server.js"));
   // The debug options for the server
   const debugOptions = {
     execArgv: ["--nolazy", "--inspect=6004"],

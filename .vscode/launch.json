@@ -98,7 +98,7 @@
 			"port": 6004,
 			"sourceMaps": true,
 			"outFiles": [
-				"${workspaceRoot}/out/src/server/**/*.js"
+				"${workspaceRoot}/out/sourcekites-server/**/*.js"
 			]
 		}
 	]

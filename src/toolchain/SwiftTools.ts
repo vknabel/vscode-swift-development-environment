@@ -127,7 +127,9 @@ export class Toolchain {
     if (target) {
       buildArgs.unshift(target);
     }
-    buildArgs.unshift("build");
+    if (!["build", "test"].includes(buildArgs[0])) {
+      buildArgs.unshift("build");
+    }
     statusBarItem.start();
     try {
       const { proc, output: buildOutput } = this.spawnSwiftProc(buildArgs, output.build, code => {

@@ -63,6 +63,7 @@ Though in most cases sourcekit-lsp and sourcekite should produce better results 
 ## Contributors
 
 - Valentin Knabel, [@vknabel](https://github.com/vknabel), [twitter](https://twitter.com/vknabel), _maintainer_
+- Clay Jensen-Reimann, [@clayreimann](https://github.com/clayreimann), [twitter](https://twitter.com/clayreimann)
 - Jin Mingjian, [@JinMingjian](https://github.com/JinMingjian), [twitter](https://twitter.com/JinMingjian), _author_, not involved anymore
 - Felix Fischer, [@felix91gr](https://github.com/felix91gr), [twitter](https://twitter.com/FelixFischer91)
 - Mijo Gračanin, [@mijo-gracanin](https://github.com/mijo-gracanin)

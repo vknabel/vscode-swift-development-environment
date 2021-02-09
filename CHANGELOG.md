@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Allow lang server restart #82 #85 by @clayreinann
+- Commands for stop, clean and run #82 #85 by @clayreimann
+
 ## 2.10.1
 
 - Did not respect default toolchain path
