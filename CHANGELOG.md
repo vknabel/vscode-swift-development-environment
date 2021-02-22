@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Allow lang server restart #82 #85 by @clayreinann
+## 2.11.0
+
+- Allow lang server restart #82 #85 by @clayreimann
 - Commands for stop, clean and run #82 #85 by @clayreimann
 - Added tables for all configurations and commands to README
 
