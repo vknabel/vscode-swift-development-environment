@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Better and more helpful error messages on first start
+
 ## 2.11.1
 
 - [Disable C and C++ for sourcekit-lsp](https://forums.swift.org/t/disable-sourcekit-lsp-for-c-files/30717/3)
