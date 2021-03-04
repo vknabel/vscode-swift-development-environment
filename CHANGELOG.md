@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.11.1
+
+- [Disable C and C++ for sourcekit-lsp](https://forums.swift.org/t/disable-sourcekit-lsp-for-c-files/30717/3)
+
 ## 2.11.0
 
 - Allow lang server restart #82 #85 by @clayreimann

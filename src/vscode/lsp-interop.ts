@@ -19,7 +19,7 @@ function currentClientOptions(): Partial<LanguageClientOptions> {
   switch (config.lsp()) {
     case LangaugeServerMode.SourceKit:
       return {
-        documentSelector: ["swift", "cpp", "c", "objective-c", "objective-cpp"],
+        documentSelector: ["swift", "objective-c", "objective-cpp"],
         synchronize: undefined,
       };
     case LangaugeServerMode.SourceKite:
