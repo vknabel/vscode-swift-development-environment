@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.11.2
+
+- Running default target did not work #94
+
 ## 2.11.1
 
 - [Disable C and C++ for sourcekit-lsp](https://forums.swift.org/t/disable-sourcekit-lsp-for-c-files/30717/3)

@@ -197,12 +197,16 @@ export class Toolchain {
     setRunning(true);
     output.run.clear();
     output.run.log(`running ${target ? target : "package"}…`);
-    const { proc } = this.spawnSwiftProc(["run", target], output.run, (code, signal) => {
-      // handle termination here
-      output.run.log(`Process exited. code=${code} signal=${signal}`);
-      setRunning(false);
-      this.runProc = undefined;
-    });
+    const { proc } = this.spawnSwiftProc(
+      target ? ["run", target] : ["run"],
+      output.run,
+      (code, signal) => {
+        // handle termination here
+        output.run.log(`Process exited. code=${code} signal=${signal}`);
+        setRunning(false);
+        this.runProc = undefined;
+      }
+    );
     this.runProc = proc;
   }
 
