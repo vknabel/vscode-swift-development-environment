@@ -2,13 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import { Package, Path } from "../package";
 
-export const swiftFilePackage: Package = async fromPath => {
+export const swiftFilePackage: Package = async (fromPath) => {
   return [
     {
       name: path.basename(fromPath),
       path: fromPath,
       sources: new Set(
-        allSwiftFilesInPath(fromPath).map(file => path.normalize(path.resolve(fromPath, file)))
+        allSwiftFilesInPath(fromPath).map((file) => path.normalize(path.resolve(fromPath, file)))
       ),
       compilerArguments: [],
     },
@@ -18,7 +18,7 @@ export const swiftFilePackage: Package = async fromPath => {
 function allSwiftFilesInPath(root: Path): Path[] {
   const result = new Array<string>();
   try {
-    const dir = fs.readdirSync(root).filter(sub => !sub.startsWith(".") && sub !== "Carthage");
+    const dir = fs.readdirSync(root).filter((sub) => !sub.startsWith(".") && sub !== "Carthage");
     for (const sub of dir) {
       if (path.extname(sub) === ".swift") {
         result.push(path.join(root, sub));

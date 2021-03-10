@@ -12,7 +12,7 @@ interface TargetDescription {
   sources: string[];
 }
 
-export const descriptionPackage: Package = async fromPath => {
+export const descriptionPackage: Package = async (fromPath) => {
   try {
     const data = await Current.swift(fromPath, `package describe --type json`);
     const packageDescription = JSON.parse(data) as PackageDescription;

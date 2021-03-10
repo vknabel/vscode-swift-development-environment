@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import { workspace, ExtensionContext } from "vscode";
-import { ServerOptions, TransportKind, Executable } from "vscode-languageclient";
+import { ServerOptions, TransportKind, Executable } from "vscode-languageclient/node";
 
 export enum LangaugeServerMode {
   SourceKit = "sourcekit-lsp",

@@ -5,7 +5,7 @@ import { debugYamlPackage } from "./debug-yaml-package";
 import { configPackage } from "./config-package";
 import { flatteningTargetsWithUniqueSources } from "./package-helpers";
 
-export const availablePackages: Package = async fromPath => {
+export const availablePackages: Package = async (fromPath) => {
   const [
     configTargets,
     debugYamlTargets,

@@ -43,7 +43,7 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand("sde.commands.selectRun", () => {
       window
         .showInputBox({ prompt: "Run which target?", value: mostRecentRunTarget })
-        .then(target => {
+        .then((target) => {
           if (!target) {
             return;
           }
@@ -60,7 +60,7 @@ export async function activate(context: ExtensionContext) {
   );
 
   workspace.onDidSaveTextDocument(
-    document => {
+    (document) => {
       if (tools.shouldBuildOnSave() && document.languageId === "swift") {
         toolchain.build();
       }
@@ -70,7 +70,7 @@ export async function activate(context: ExtensionContext) {
   );
 
   // respond to settings changes
-  workspace.onDidChangeConfiguration(async event => {
+  workspace.onDidChangeConfiguration(async (event) => {
     if (
       event.affectsConfiguration("sde") ||
       event.affectsConfiguration("swift") ||

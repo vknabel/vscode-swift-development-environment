@@ -1,5 +1,5 @@
 import { workspace, ExtensionContext, Disposable } from "vscode";
-import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
+import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
 import { absolutePath } from "../helpers/AbsolutePath";
 import * as config from "./config-helpers";
 import { LangaugeServerMode } from "./config-helpers";

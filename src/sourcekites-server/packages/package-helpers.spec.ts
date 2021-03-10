@@ -58,7 +58,7 @@ describe("package helpers", () => {
         path: "./",
         sources: new Set(
           Array(uniqueTarget.sources.values()).map(
-            sourceFile => `${uniqueTarget.path}/${sourceFile}`
+            (sourceFile) => `${uniqueTarget.path}/${sourceFile}`
           )
         ),
       };

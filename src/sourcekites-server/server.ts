@@ -5,9 +5,8 @@ import {
   IPCMessageReader,
   IPCMessageWriter,
   createConnection,
-  IConnection,
+  Connection,
   TextDocuments,
-  TextDocument,
   InitializeParams,
   InitializeResult,
   CompletionItem,
@@ -18,8 +17,9 @@ import {
   MarkedString,
   Definition,
   FileChangeType,
-  Range
-} from "vscode-languageserver";
+  Range,
+  TextDocumentSyncKind
+} from "vscode-languageserver/node";
 import * as fs from "fs";
 import * as sourcekitProtocol from "./sourcekites";
 import * as childProcess from "child_process";
@@ -27,17 +27,19 @@ import { parseDocumentation } from "./sourcekit-xml";
 import { Target } from "./package";
 import { availablePackages } from "./packages/available-packages";
 import { Current } from "./current";
+import { TextDocument } from 'vscode-languageserver-textdocument';
+
 export const spawn = childProcess.spawn;
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
-let connection: IConnection = createConnection(
+let connection: Connection = createConnection(
   new IPCMessageReader(process),
   new IPCMessageWriter(process)
 );
 
 // Create a simple text document manager. The text document manager
 // supports full document sync only
-let documents: TextDocuments = new TextDocuments();
+let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection);
@@ -83,7 +85,7 @@ connection.onInitialize(
     return {
       capabilities: {
         // Tell the client that the server works in FULL text document sync mode
-        textDocumentSync: documents.syncKind,
+        textDocumentSync: TextDocumentSyncKind.Incremental,
         definitionProvider: true,
         hoverProvider: true,
         // referencesProvider: false,

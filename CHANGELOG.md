@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+-
+
+## 2.12.0
+
 - Better and more helpful error messages on first start
+- Upgraded dependencies
 
 ## 2.11.2
 

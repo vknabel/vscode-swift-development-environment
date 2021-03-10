@@ -172,7 +172,7 @@ function typedResponse<T>(
   retries = 0
 ): Promise<T> {
   function parseSkResponse(resp: string): any {
-    return yaml.safeLoad(resp);
+    return yaml.load(resp);
   }
 
   Current.log("request", request);

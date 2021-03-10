@@ -23,7 +23,7 @@ interface LLCommand {
   "other-args"?: string[];
 }
 
-export const debugYamlPackage: Package = async fromPath => {
+export const debugYamlPackage: Package = async (fromPath) => {
   let debugContents: string;
   try {
     debugContents = await contentsOfDebugOrReleaseYaml(fromPath);
@@ -41,7 +41,7 @@ export const debugYamlPackage: Package = async fromPath => {
       name: command["module-name"] || name,
       path: fromPath, // actually a subfolder, but all paths are absolute
       sources: new Set(
-        command.sources.map(toSource => path.normalize(path.resolve(fromPath, toSource)))
+        command.sources.map((toSource) => path.normalize(path.resolve(fromPath, toSource)))
       ),
       compilerArguments: compilerArgumentsForCommand(command),
     });
