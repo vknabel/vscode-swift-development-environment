@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Better and more helpful error messages on first start
+
 ## 2.11.2
 
 - Running default target did not work #94

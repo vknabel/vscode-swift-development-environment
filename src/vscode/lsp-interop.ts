@@ -3,6 +3,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-lan
 import { absolutePath } from "../helpers/AbsolutePath";
 import * as config from "./config-helpers";
 import { LangaugeServerMode } from "./config-helpers";
+import { currentLspPreconditions } from "./lsp-preconditions";
 
 function currentServerOptions(context: ExtensionContext): ServerOptions {
   switch (config.lsp()) {
@@ -50,7 +51,8 @@ let clientDisposable: Disposable | undefined;
  * a dispoasble in the extension context.
  * @param context the SDE extension context
  */
-function startLSPClient(context: ExtensionContext) {
+async function startLSPClient(context: ExtensionContext) {
+  await currentLspPreconditions();
   let clientOptions: LanguageClientOptions = {
     // Register the server for plain text documentss
     documentSelector: [
@@ -79,9 +81,9 @@ function startLSPClient(context: ExtensionContext) {
  * The client is stopped using the disposable returned from `client.start()`
  * @param context the SDE extension context
  */
-function restartLSPClient(context: ExtensionContext) {
+async function restartLSPClient(context: ExtensionContext) {
   clientDisposable.dispose();
-  startLSPClient(context);
+  await startLSPClient(context);
 }
 
 export default {

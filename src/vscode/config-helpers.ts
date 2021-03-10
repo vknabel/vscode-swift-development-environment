@@ -66,11 +66,14 @@ export function sourcekiteServerOptions(context: ExtensionContext): ServerOption
   return serverOptions;
 }
 
-export function lspServerOptions(): ServerOptions {
-  // Load the path to the language server from settings
-  const executableCommand = workspace
+export function languageServerPath(): string {
+  return workspace
     .getConfiguration("swift")
     .get("languageServerPath", "/usr/local/bin/LanguageServer");
+}
+export function lspServerOptions(): ServerOptions {
+  // Load the path to the language server from settings
+  const executableCommand = languageServerPath();
 
   const run: Executable = {
     command: executableCommand,
@@ -84,6 +87,9 @@ export function lspServerOptions(): ServerOptions {
   return serverOptions;
 }
 
+export function toolchainPath(): string {
+  return workspace.getConfiguration("sourcekit-lsp").get<string>("toolchainPath");
+}
 export function sourcekitLspServerOptions(): ServerOptions {
   const toolchain = workspace.getConfiguration("sourcekit-lsp").get<string>("toolchainPath");
 
@@ -108,7 +114,7 @@ export function sourcekitLspServerOptions(): ServerOptions {
   return serverOptions;
 }
 
-function sourceKitLSPLocation(toolchain: string | undefined): string {
+export function sourceKitLSPLocation(toolchain: string | undefined): string {
   const explicit = workspace
     .getConfiguration("sourcekit-lsp")
     .get<string | null>("serverPath", null);
