@@ -30,7 +30,7 @@ export const debugYamlPackage: Package = async (fromPath) => {
   } catch (error) {
     return [];
   }
-  const debugYaml = yaml.safeLoad(debugContents) as DebugYaml;
+  const debugYaml = yaml.load(debugContents) as DebugYaml;
   const targets: Target[] = [];
   for (const name in debugYaml.commands) {
     const command = debugYaml.commands[name];
