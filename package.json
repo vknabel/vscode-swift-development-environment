@@ -8,7 +8,7 @@
     "url": "https://github.com/vknabel"
   },
   "license": "Apache-2.0",
-  "version": "2.12.0",
+  "version": "2.12.1",
   "publisher": "vknabel",
   "icon": "icons/icon.png",
   "galleryBanner": {
@@ -108,7 +108,8 @@
       "properties": {
         "sourcekit-lsp.serverPath": {
           "type": "string",
-          "description": "The path of the sourcekit-lsp executable\nIn SDE: defaults to the toolchain's sourcekit-lsp."
+          "description": "The path of the sourcekit-lsp executable\nIn SDE: defaults to the toolchain's sourcekit-lsp. Only available in global config for security reasons.",
+          "scope": "machine"
         },
         "sourcekit-lsp.toolchainPath": {
           "type": "string",
@@ -117,26 +118,31 @@
         "swift.languageServerPath": {
           "type": "string",
           "default": "/usr/local/bin/langserver-swift",
-          "description": "[DEPRECATED] The fully qualified path to the Swift Language Server executable."
+          "description": "[DEPRECATED] The fully qualified path to the Swift Language Server executable. Only available in global config for security reasons.",
+          "scope": "machine"
         },
         "swift.path.sourcekite": {
           "type": "string",
-          "description": "The fully path to the sourcekite(SDE's LS backend)."
+          "description": "The fully path to the sourcekite(SDE's LS backend). Only available in global config for security reasons.",
+          "scope": "machine"
         },
         "swift.path.sourcekiteDockerMode": {
           "type": "boolean",
           "default": false,
-          "description": "[DEPRECATED] (Experimental)Enable to run dedicated docker shell command. It is the responsibility of user to guarantee that the docker cmd 'docker run --rm -i jinmingjian/docker-sourcekite' works in your system."
+          "description": "[DEPRECATED] (Experimental)Enable to run dedicated docker shell command. It is the responsibility of user to guarantee that the docker cmd 'docker run --rm -i jinmingjian/docker-sourcekite' works in your system.",
+          "scope": "machine"
         },
         "swift.path.swift_driver_bin": {
           "type": "string",
           "default": "/usr/bin/swift",
-          "description": "The fully path to the swift driver binary."
+          "description": "The fully path to the swift driver binary. Only available in global config for security reasons.",
+          "scope": "machine"
         },
         "swift.path.shell": {
           "type": "string",
           "default": "/bin/sh",
-          "description": "The fully path to the shell binary."
+          "description": "The fully path to the shell binary. Only available in global config for security reasons.",
+          "scope": "machine"
         },
         "sde.sourcekit.compilerOptions": {
           "type": "array",

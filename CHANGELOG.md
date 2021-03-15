@@ -4,6 +4,12 @@
 
 -
 
+## 2.12.1
+
+Fixes vulnerability which allowed malicous workspaces to execute code when opened by providing. Now the vulnerable configs cannot be overrided in workspaces anymore:
+`sourcekit-lsp.serverPath`, `swift.languageServerPath`, `swift.path.sourcekite`, `swift.path.sourcekiteDockerMode`, `swift.path.swift_driver_bin`, `swift.path.shell`.
+
+
 ## 2.12.0
 
 - Better and more helpful error messages on first start
