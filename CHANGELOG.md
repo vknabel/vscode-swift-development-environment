@@ -6,7 +6,7 @@
 
 ## 2.12.1
 
-Fixes vulnerability which allowed malicous workspaces to execute code when opened by providing. Now the vulnerable configs cannot be overrided in workspaces anymore:
+[[CVE-2021-28792](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-28792)] Fixes vulnerability which allowed malicous workspaces to execute code when opened by providing. Now the vulnerable configs cannot be overrided in workspaces anymore:
 `sourcekit-lsp.serverPath`, `swift.languageServerPath`, `swift.path.sourcekite`, `swift.path.sourcekiteDockerMode`, `swift.path.swift_driver_bin`, `swift.path.shell`. Reported by [@Ry0taK](https://github.com/Ry0taK).
 
 
