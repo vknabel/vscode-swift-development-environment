@@ -206,6 +206,12 @@ Since Xcode 11.4, you may use its built-in support for sourcekit-lsp
 
 Go to vscode `OUTPUT` window, then select `SPM`. The `OUTPUT` window will tell you what's wrong.
 
+### It says `Build error: root manifest not found`??
+
+The Root Manifest refers to a Package.swift file of the Swift Package Manager (short SwiftPM, SPM). And this extension requires a Swift Package (a project for the SwiftPM) to function. Projects created by Xcode rely on a different format (`*.xcodeproj` and `*.xcodeworkspace`) and the extension cannot handle these.
+
+You'll need to create a new Swift Package and "wire it up" with your Xcode Project. There are some tips and guides linked in [this SO question](https://stackoverflow.com/questions/41900749/use-swift-package-manager-on-existing-xcode-project).
+
 ### I'd like to have a different build paths than usually. How can I achieve that?
 
 You can compile your app using a command like `swift build --build-path "./.build-macos"` on macOS and `swift build --build-path "./.build-linux"` on Linux, e.g. from within a docker container, you just need to add the appropriate building parameter:
