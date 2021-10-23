@@ -18,7 +18,7 @@ import {
   Definition,
   FileChangeType,
   Range,
-  TextDocumentSyncKind
+  TextDocumentSyncKind,
 } from "vscode-languageserver/node";
 import * as fs from "fs";
 import * as sourcekitProtocol from "./sourcekites";
@@ -27,7 +27,7 @@ import { parseDocumentation } from "./sourcekit-xml";
 import { Target } from "./package";
 import { availablePackages } from "./packages/available-packages";
 import { Current } from "./current";
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument } from "vscode-languageserver-textdocument";
 
 export const spawn = childProcess.spawn;
 
@@ -53,60 +53,55 @@ export async function initializeModuleMeta() {
 
 export function targetForSource(srcPath: string): Target {
   return (
-    (targets &&
-      targets.find(target => target.sources.has(path.normalize(srcPath)))) || {
+    (targets && targets.find((target) => target.sources.has(path.normalize(srcPath)))) || {
       name: path.basename(srcPath),
       path: srcPath,
       sources: new Set([srcPath]),
-      compilerArguments: []
+      compilerArguments: [],
     }
   );
 }
 
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the root paths of the workspaces plus the client capabilites.
-connection.onInitialize(
-  (params: InitializeParams, cancellationToken): InitializeResult => {
-    Current.config.isTracingOn =
-      params.initializationOptions.isLSPServerTracingOn;
-    Current.config.workspacePaths = params.workspaceFolders.map(({ uri }) =>
-      uri.replace("file://", "")
-    );
-    skProtocolPath = params.initializationOptions.skProtocolProcess;
-    Current.config.toolchainPath = params.initializationOptions.toolchainPath;
-    skProtocolProcessAsShellCmd =
-      params.initializationOptions.skProtocolProcessAsShellCmd;
-    skCompilerOptions = params.initializationOptions.skCompilerOptions;
-    Current.log(
-      "-->onInitialize ",
-      `isTracingOn=[${Current.config.isTracingOn}],
+connection.onInitialize((params: InitializeParams, cancellationToken): InitializeResult => {
+  Current.config.isTracingOn = params.initializationOptions.isLSPServerTracingOn;
+  Current.config.workspacePaths = params.workspaceFolders?.map(({ uri }) =>
+    uri.replace("file://", "")
+  ) ?? ["/"];
+  skProtocolPath = params.initializationOptions.skProtocolProcess;
+  Current.config.toolchainPath = params.initializationOptions.toolchainPath;
+  skProtocolProcessAsShellCmd = params.initializationOptions.skProtocolProcessAsShellCmd;
+  skCompilerOptions = params.initializationOptions.skCompilerOptions;
+  Current.log(
+    "-->onInitialize ",
+    `isTracingOn=[${Current.config.isTracingOn}],
 	skProtocolProcess=[${skProtocolPath}],skProtocolProcessAsShellCmd=[${skProtocolProcessAsShellCmd}]`
-    );
-    return {
-      capabilities: {
-        // Tell the client that the server works in FULL text document sync mode
-        textDocumentSync: TextDocumentSyncKind.Incremental,
-        definitionProvider: true,
-        hoverProvider: true,
-        // referencesProvider: false,
-        // documentSymbolProvider: false,
-        // signatureHelpProvider: {
-        // 	triggerCharacters: ['[', ',']
-        // },
-        // We're providing completions.
-        completionProvider: {
-          resolveProvider: false,
-          triggerCharacters: [
-            ".",
-            ":",
-            "(",
-            "#" //' ', '<', //TODO
-          ]
-        }
-      }
-    };
-  }
-);
+  );
+  return {
+    capabilities: {
+      // Tell the client that the server works in FULL text document sync mode
+      textDocumentSync: TextDocumentSyncKind.Incremental,
+      definitionProvider: true,
+      hoverProvider: true,
+      // referencesProvider: false,
+      // documentSymbolProvider: false,
+      // signatureHelpProvider: {
+      // 	triggerCharacters: ['[', ',']
+      // },
+      // We're providing completions.
+      completionProvider: {
+        resolveProvider: false,
+        triggerCharacters: [
+          ".",
+          ":",
+          "(",
+          "#", //' ', '<', //TODO
+        ],
+      },
+    },
+  };
+});
 
 // The settings interface describe the server relevant settings part
 interface Settings {
@@ -127,7 +122,7 @@ export let skCompilerOptions: string[] = [];
 let maxNumProblems = null;
 // The settings have changed. Is send on server activation
 // as well.
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration((change) => {
   Current.log("-->onDidChangeConfiguration");
   const settings = <Settings>change.settings;
   const sdeSettings = settings.swift;
@@ -180,14 +175,14 @@ function validateTextDocument(textDocument: TextDocument): void {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
+documents.onDidChangeContent((change) => {
   validateTextDocument(change.document);
   Current.log("---onDidChangeContent");
 });
 
-connection.onDidChangeWatchedFiles(watched => {
+connection.onDidChangeWatchedFiles((watched) => {
   // trace('---','onDidChangeWatchedFiles');
-  watched.changes.forEach(e => {
+  watched.changes.forEach((e) => {
     let file: string;
     switch (e.type) {
       case FileChangeType.Created:
@@ -205,70 +200,57 @@ connection.onDidChangeWatchedFiles(watched => {
 });
 
 // This handler provides the initial list of the completion items.
-connection.onCompletion(
-  ({ textDocument, position }): Thenable<CompletionItem[]> => {
-    function removeSubstringFix(sub: string, replacement = ""): TextEdit[] {
-      const prefixOffset = offset - Math.max(3, sub.length * 2 - 1);
-      const prefix = srcText.slice(prefixOffset, offset);
-      const lastOccurence = prefix.lastIndexOf(sub);
-      if (lastOccurence === -1) return [];
-      const duplicateKeywordRange = Range.create(
-        document.positionAt(prefixOffset + lastOccurence),
-        document.positionAt(prefixOffset + lastOccurence + sub.length)
-      );
-      return [TextEdit.replace(duplicateKeywordRange, replacement)];
-    }
-    function completionOfDuplicateFuncKeywordFix(kind: string): TextEdit[] {
-      return (
-        (kind.includes("source.lang.swift.decl.function.") &&
-          removeSubstringFix("func ")) ||
-        []
-      );
-    }
-    function completionOfDuplicateDotFix(kind: string): TextEdit[] {
-      return (
-        (kind.includes("source.lang.swift.decl.function.") &&
-          removeSubstringFix("..", ".")) ||
-        []
-      );
-    }
-    function combineFixes(
-      kind: string,
-      ...fixes: Array<(kind: string) => TextEdit[]>
-    ): TextEdit[] {
-      return fixes
-        .map(fix => fix(kind))
-        .reduce((all, next) => [...all, ...next], []);
-    }
-
-    const document: TextDocument = documents.get(textDocument.uri);
-    const srcPath = document.uri.substring(7, document.uri.length);
-    const srcText: string = document.getText(); //NOTE needs on-the-fly buffer
-    const offset = document.offsetAt(position); //FIXME
-    return sourcekitProtocol.codeComplete(srcText, srcPath, offset).then(
-      function(completions: Object[] | null) {
-        return (completions || []).map(c => {
-          let item = CompletionItem.create(c["key.description"]);
-          item.kind = toCompletionItemKind(c["key.kind"]);
-          item.detail = `${c["key.modulename"]}.${c["key.name"]}`;
-          item.insertText = createSuggest(c["key.sourcetext"]);
-          item.insertTextFormat = InsertTextFormat.Snippet;
-          item.documentation = c["key.doc.brief"];
-          item.additionalTextEdits = combineFixes(
-            c["key.kind"],
-            completionOfDuplicateFuncKeywordFix,
-            completionOfDuplicateDotFix
-          );
-          return item;
-        });
-      },
-      function(err) {
-        //FIXME
-        return err;
-      }
+connection.onCompletion(({ textDocument, position }): Thenable<CompletionItem[]> => {
+  function removeSubstringFix(sub: string, replacement = ""): TextEdit[] {
+    const prefixOffset = offset - Math.max(3, sub.length * 2 - 1);
+    const prefix = srcText.slice(prefixOffset, offset);
+    const lastOccurence = prefix.lastIndexOf(sub);
+    if (lastOccurence === -1) return [];
+    const duplicateKeywordRange = Range.create(
+      document.positionAt(prefixOffset + lastOccurence),
+      document.positionAt(prefixOffset + lastOccurence + sub.length)
+    );
+    return [TextEdit.replace(duplicateKeywordRange, replacement)];
+  }
+  function completionOfDuplicateFuncKeywordFix(kind: string): TextEdit[] {
+    return (kind.includes("source.lang.swift.decl.function.") && removeSubstringFix("func ")) || [];
+  }
+  function completionOfDuplicateDotFix(kind: string): TextEdit[] {
+    return (
+      (kind.includes("source.lang.swift.decl.function.") && removeSubstringFix("..", ".")) || []
     );
   }
-);
+  function combineFixes(kind: string, ...fixes: Array<(kind: string) => TextEdit[]>): TextEdit[] {
+    return fixes.map((fix) => fix(kind)).reduce((all, next) => [...all, ...next], []);
+  }
+
+  const document: TextDocument = documents.get(textDocument.uri);
+  const srcPath = document.uri.substring(7, document.uri.length);
+  const srcText: string = document.getText(); //NOTE needs on-the-fly buffer
+  const offset = document.offsetAt(position); //FIXME
+  return sourcekitProtocol.codeComplete(srcText, srcPath, offset).then(
+    function (completions: Object[] | null) {
+      return (completions || []).map((c) => {
+        let item = CompletionItem.create(c["key.description"]);
+        item.kind = toCompletionItemKind(c["key.kind"]);
+        item.detail = `${c["key.modulename"]}.${c["key.name"]}`;
+        item.insertText = createSuggest(c["key.sourcetext"]);
+        item.insertTextFormat = InsertTextFormat.Snippet;
+        item.documentation = c["key.doc.brief"];
+        item.additionalTextEdits = combineFixes(
+          c["key.kind"],
+          completionOfDuplicateFuncKeywordFix,
+          completionOfDuplicateDotFix
+        );
+        return item;
+      });
+    },
+    function (err) {
+      //FIXME
+      return err;
+    }
+  );
+});
 
 /**
  * ref: https://github.com/facebook/nuclide/blob/master/pkg/nuclide-swift/lib/sourcekitten/Complete.js#L57
@@ -359,25 +341,23 @@ function toCompletionItemKind(keyKind: string): CompletionItemKind {
 // 	return item;
 // });
 
-connection.onHover(
-  ({ textDocument, position }): Promise<Hover> => {
-    const document: TextDocument = documents.get(textDocument.uri);
-    const srcPath = document.uri.substring(7, document.uri.length);
-    const srcText: string = document.getText(); //NOTE needs on-the-fly buffer
-    const offset = document.offsetAt(position); //FIXME
-    return sourcekitProtocol.cursorInfo(srcText, srcPath, offset).then(
-      function(cursorInfo) {
-        return extractHoverHelp(cursorInfo).then(mks => {
-          return { contents: mks || [] };
-        });
-      },
-      function(err) {
-        //FIXME
-        return err;
-      }
-    );
-  }
-);
+connection.onHover(({ textDocument, position }): Promise<Hover> => {
+  const document: TextDocument = documents.get(textDocument.uri);
+  const srcPath = document.uri.substring(7, document.uri.length);
+  const srcText: string = document.getText(); //NOTE needs on-the-fly buffer
+  const offset = document.offsetAt(position); //FIXME
+  return sourcekitProtocol.cursorInfo(srcText, srcPath, offset).then(
+    function (cursorInfo) {
+      return extractHoverHelp(cursorInfo).then((mks) => {
+        return { contents: mks || [] };
+      });
+    },
+    function (err) {
+      //FIXME
+      return err;
+    }
+  );
+});
 
 /**
  * sadasd
@@ -407,52 +387,48 @@ async function extractHoverHelp(cursorInfo: Object): Promise<MarkedString[]> {
   const annotated_decl = cursorInfo["key.annotated_decl"];
   const snippet = annotated_decl
     ? "```swift\n" +
-      decode(
-        stripeOutTags(extractText("Declaration", full_as_xml || annotated_decl))
-      ) +
+      decode(stripeOutTags(extractText("Declaration", full_as_xml || annotated_decl))) +
       "\n```\n"
     : keyName;
   return [snippet, ...parseDocumentation(full_as_xml)]; //FIXME clickable keyTypename
 }
 
-connection.onDefinition(
-  ({ textDocument, position }): Promise<Definition> => {
-    const document: TextDocument = documents.get(textDocument.uri);
-    const srcPath = document.uri.substring(7, document.uri.length);
-    const srcText: string = document.getText(); //NOTE needs on-the-fly buffer
-    const offset = document.offsetAt(position); //FIXME
-    return sourcekitProtocol.cursorInfo(srcText, srcPath, offset).then(
-      function(cursorInfo) {
-        const filepath = cursorInfo["key.filepath"];
-        if (filepath) {
-          const offset = cursorInfo["key.offset"];
-          const len = cursorInfo["key.length"];
-          const fileUri = `file://${filepath}`;
-          let document: TextDocument = documents.get(fileUri); //FIXME
-          //FIXME more here: https://github.com/Microsoft/language-server-protocol/issues/96
-          if (!document) {
-            //FIXME just make a temp doc to let vscode help us
-            const content = fs.readFileSync(filepath, "utf8");
-            document = TextDocument.create(fileUri, "swift", 0, content);
-          }
-          return {
-            uri: fileUri,
-            range: {
-              start: document.positionAt(offset),
-              end: document.positionAt(offset + len)
-            }
-          };
-        } else {
-          return null;
+connection.onDefinition(({ textDocument, position }): Promise<Definition> => {
+  const document: TextDocument = documents.get(textDocument.uri);
+  const srcPath = document.uri.substring(7, document.uri.length);
+  const srcText: string = document.getText(); //NOTE needs on-the-fly buffer
+  const offset = document.offsetAt(position); //FIXME
+  return sourcekitProtocol.cursorInfo(srcText, srcPath, offset).then(
+    function (cursorInfo) {
+      const filepath = cursorInfo["key.filepath"];
+      if (filepath) {
+        const offset = cursorInfo["key.offset"];
+        const len = cursorInfo["key.length"];
+        const fileUri = `file://${filepath}`;
+        let document: TextDocument = documents.get(fileUri); //FIXME
+        //FIXME more here: https://github.com/Microsoft/language-server-protocol/issues/96
+        if (!document) {
+          //FIXME just make a temp doc to let vscode help us
+          const content = fs.readFileSync(filepath, "utf8");
+          document = TextDocument.create(fileUri, "swift", 0, content);
         }
-      },
-      function(err) {
-        //FIXME
-        return err;
+        return {
+          uri: fileUri,
+          range: {
+            start: document.positionAt(offset),
+            end: document.positionAt(offset + len),
+          },
+        };
+      } else {
+        return null;
       }
-    );
-  }
-);
+    },
+    function (err) {
+      //FIXME
+      return err;
+    }
+  );
+});
 
 function fromDocumentUri(document: { uri: string }): string {
   // return Files.uriToFilePath(document.uri);
@@ -494,7 +470,7 @@ const xmlEntities = {
   "&amp;": "&",
   "&quot;": '"',
   "&lt;": "<",
-  "&gt;": ">"
+  "&gt;": ">",
 };
 function decode(str) {
   return str.replace(/(&quot;|&lt;|&gt;|&amp;)/g, (m, c) => xmlEntities[c]);
@@ -502,7 +478,5 @@ function decode(str) {
 
 //FIX issue#15
 export function getShellExecPath() {
-  return fs.existsSync(Current.config.shellPath)
-    ? Current.config.shellPath
-    : "/usr/bin/sh";
+  return fs.existsSync(Current.config.shellPath) ? Current.config.shellPath : "/usr/bin/sh";
 }

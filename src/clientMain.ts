@@ -28,7 +28,9 @@ export async function activate(context: ExtensionContext) {
   //commands
   let toolchain = new tools.Toolchain(
     swiftBinPath,
-    workspace.workspaceFolders[0].uri.fsPath,
+    workspace.workspaceFolders && workspace.workspaceFolders[0]
+      ? workspace.workspaceFolders[0].uri.fsPath
+      : "/",
     swiftBuildParams
   );
   context.subscriptions.push(toolchain.diagnostics);
