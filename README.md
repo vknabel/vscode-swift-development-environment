@@ -4,6 +4,8 @@
 
 **SDE** adds Swift code completion and hover help to Visual Studio Code on macOS and Linux.
 
+If possible, always favor [SSWG Swift VS Code extension](https://github.com/swift-server/vscode-swift) over this one. This will only receive maintenance updates, but no new features or other improvements.
+
 > **Fork Notice:** This is the new home of SDE initially been developed by [@jinmingjian](https://github.com/jinmingjian). It is now maintained by [@vknabel](https://github.com/vknabel). [jinmingjian/sde](https://github.com/jinmingjian/sde) is no longer maintained and does only support Swift 3. This fork supports Swift 3.1, 4 and 5.
 
 ![preview](docs/preview.gif)
