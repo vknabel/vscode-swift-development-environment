@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.12.3
+
+- upgrade dependencies
+
 ## 2.12.2
 
 - fix crashes in non-workspace usages
